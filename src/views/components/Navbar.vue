@@ -9,7 +9,9 @@
        </a>
  
        <div class="hidden lg:inline-block   " style="float:right">
-         <UpperNav />
+         <UpperNav
+          v-bind:web3Plug="web3Plug"
+          />
        </div>
 
 
@@ -21,7 +23,10 @@
 
         <div v-if="showResponsiveMenu" class="w-full absolute left-0 block flex-grow lg:flex lg:items-center lg:w-auto bg-gray-200">
           <div class="text-sm lg:flex-grow">
-             <AccordionNav />
+             <AccordionNav 
+             v-bind:web3Plug="web3Plug"
+             />
+
           </div>
 
         </div>
@@ -42,11 +47,12 @@ import AccordionNav from './AccordionNav.vue';
 
 export default {
   name: 'Navbar',
-  props: [],
+  props: ['web3Plug'],
   components: {UpperNav,AccordionNav},
   data() {
     return {
-      showResponsiveMenu: false
+      showResponsiveMenu: false,
+
     }
   },
   methods: {

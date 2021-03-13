@@ -5,7 +5,9 @@
    <div class="section bg-world px-0 lg:px-1">
 
      <div class=" ">
-       <Navbar />
+       <Navbar 
+        v-bind:web3Plug="web3Plug"
+       />
      </div>
 
 
