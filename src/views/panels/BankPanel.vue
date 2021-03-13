@@ -1,9 +1,11 @@
 
 <template>
-    <div class="bg-gray-800 p-8">
+    <div class="bg-gray-800 px-8 py-2">
 
       <div>
-      <h3 class="text-lg font-bold inline text-white">Yield Farm: 0xBTC-ETH Pair </h3>
+      <h3 class="text-lg font-bold   text-white"> The Moonbank </h3>
+     
+      <div class="text-xs      text-gray-300"> Earn interest on your mineable tokens! </div>
 
      
 
@@ -45,9 +47,17 @@
         <div  class="mb-12">
 
          
+         <div class="mt-12 flex flex-row w-full" v-if="depositAsset">
+              <div @click="approveTokenForMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
+              Approve {{depositAsset.name}}
+              </div>
 
-          
+              <div @click="stakeTokenForMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
+              Deposit {{depositAsset.name}}
+              </div>
 
+
+          </div>
 
         </div>
 
@@ -122,6 +132,8 @@ export default {
       currentBalances: {} , 
       cryptoAssets: CryptoAssets, 
 
+      depositAsset: {},
+
       txError: null,
 
       networkProviderIdError: null
@@ -129,6 +141,17 @@ export default {
   },
  async  mounted()
   {
+
+     let contractData = this.web3Plug.getContractDataForNetworkID( this.web3Plug.getActiveNetId() )
+
+
+    this.depositAsset.name = "0xBTC"
+    this.depositAsset.address = contractData['0xbitcoin'].address
+   
+
+
+
+
     this.refreshBalances()
     setInterval(this.refreshBalances, 10*1000);
  
@@ -195,7 +218,7 @@ export default {
 
  
 
-       async approveZapInZXBTCTokens(){
+       async approveTokenForMoonbank(){
 
          let networkId = this.providerNetworkID
 
@@ -229,8 +252,8 @@ export default {
 
 
 
-      ///Need approval?
-        async zapInToken()
+      ///Need approval 
+        async stakeTokenForMoonbank()
         {
           let networkId = this.providerNetworkID
 
