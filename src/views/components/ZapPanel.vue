@@ -221,7 +221,7 @@ const CryptoAssets = require('../../config/cryptoassets.json')
 import Web3NetButton from './Web3NetButton.vue'
 import YieldFarmingLabel from './YieldFarmingLabel.vue'
 
-import Web3Helper from '../../js/web3-helper.js'
+import Web3Plug from '../../js/web3-plug.js'
 
 export default {
   name: 'ZapPanel',
@@ -271,7 +271,7 @@ export default {
 
    async refreshBalances(){
 
-      let contractData = Web3Helper.getContractDataForNetworkID(this.providerNetworkID)
+      let contractData = Web3Plug.getContractDataForNetworkID(this.providerNetworkID)
 
       let zcbtcTokenAddress = contractData["0xbitcoin"].address
       let lpTokenAddress = contractData["0xbitcoinmarketpair"].address
@@ -279,13 +279,13 @@ export default {
       let zapInContractAddress = contractData["uniswapv2add"].address
       let zapOutContractAddress = contractData["uniswapv2remove"].address
 
-       this.currentBalances.eth = await Web3Helper.getETHBalance(this.activeAccountAddress)
-       this.currentBalances.zxbtc = await Web3Helper.getTokenBalance(zcbtcTokenAddress, this.activeAccountAddress)
+       this.currentBalances.eth = await Web3Plug.getETHBalance(this.activeAccountAddress)
+       this.currentBalances.zxbtc = await Web3Plug.getTokenBalance(zcbtcTokenAddress, this.activeAccountAddress)
 
-       this.currentBalances.lpToken = await Web3Helper.getTokenBalance(lpTokenAddress, this.activeAccountAddress)
+       this.currentBalances.lpToken = await Web3Plug.getTokenBalance(lpTokenAddress, this.activeAccountAddress)
 
-       this.zapOutLPTokensApproved= await Web3Helper.getTokensAllowance(lpTokenAddress,  this.activeAccountAddress, zapOutContractAddress)
-       this.zapInZXBTCApproved=  await Web3Helper.getTokensAllowance(zcbtcTokenAddress,  this.activeAccountAddress, zapInContractAddress)
+       this.zapOutLPTokensApproved= await Web3Plug.getTokensAllowance(lpTokenAddress,  this.activeAccountAddress, zapOutContractAddress)
+       this.zapInZXBTCApproved=  await Web3Plug.getTokensAllowance(zcbtcTokenAddress,  this.activeAccountAddress, zapInContractAddress)
 
        let zapOutEstimate = await this.estimateZapOutAmountFromLPTokens()
 
@@ -300,18 +300,18 @@ export default {
 
          let networkId = this.providerNetworkID
 
-         let contractData =  Web3Helper.getContractDataForNetworkID(networkId)
+         let contractData =  Web3Plug.getContractDataForNetworkID(networkId)
          let uniswapPairContractAddress = contractData["0xbitcoinmarketpair"].address
          let uniswapRouterContractAddress = contractData["uniswapv2router"].address
 
-         let uniswapRouterContract = await Web3Helper.getUniswapRouterContract( window.web3, uniswapRouterContractAddress )
-         let uniswapPairContract = await Web3Helper.getUniswapPairContract( window.web3, uniswapPairContractAddress )
+         let uniswapRouterContract = await Web3Plug.getUniswapRouterContract( window.web3, uniswapRouterContractAddress )
+         let uniswapPairContract = await Web3Plug.getUniswapPairContract( window.web3, uniswapPairContractAddress )
 
 
-         let totalLpTokenSupply =  await Web3Helper.getTotalLPTokenSupply(uniswapPairContract)
+         let totalLpTokenSupply =  await Web3Plug.getTotalLPTokenSupply(uniswapPairContract)
 
-        /// let priceEstimate = await Web3Helper.getMarketPairPriceEstimate(uniswapPairContract)
-         let pairReserves  = await Web3Helper.getMarketPairReserves(uniswapPairContract)
+        /// let priceEstimate = await Web3Plug.getMarketPairPriceEstimate(uniswapPairContract)
+         let pairReserves  = await Web3Plug.getMarketPairReserves(uniswapPairContract)
 
 
 
@@ -321,7 +321,7 @@ export default {
 
          let myLpTokenFraction =  (myLpTokenBalance / totalLpTokenSupply)
 
-      //   let priceRatioEstimated = Web3Helper.rawAmountToFormatted(priceEstimate[0], 18) / Web3Helper.rawAmountToFormatted(priceEstimate[1], 8)
+      //   let priceRatioEstimated = Web3Plug.rawAmountToFormatted(priceEstimate[0], 18) / Web3Plug.rawAmountToFormatted(priceEstimate[1], 8)
 
 
          let myPooledZXBTCTokenShare = Math.floor( myLpTokenFraction *  pairReserves[0] )
@@ -334,8 +334,8 @@ export default {
                  return [0 , 0]
              }
 
-         let myPooledEthShareInTermsOfZXBTC = await Web3Helper.getUniSwapEstimate(uniswapRouterContract, myPooledEthShare.toString(), pairReserves[1], pairReserves[0] )
-         let myPooledZXBTCShareInTermsOfETH = await Web3Helper.getUniSwapEstimate(uniswapRouterContract, myPooledZXBTCTokenShare.toString(), pairReserves[0], pairReserves[1] )
+         let myPooledEthShareInTermsOfZXBTC = await Web3Plug.getUniSwapEstimate(uniswapRouterContract, myPooledEthShare.toString(), pairReserves[1], pairReserves[0] )
+         let myPooledZXBTCShareInTermsOfETH = await Web3Plug.getUniSwapEstimate(uniswapRouterContract, myPooledZXBTCTokenShare.toString(), pairReserves[0], pairReserves[1] )
 
             console.log("myPooledEthShareInTermsOfZXBTC", myPooledEthShareInTermsOfZXBTC)
 
@@ -356,7 +356,7 @@ export default {
 
   rawAmountToFormatted(amount,decimals){
 
-    return Web3Helper.rawAmountToFormatted(amount, decimals)
+    return Web3Plug.rawAmountToFormatted(amount, decimals)
   },
 
 
@@ -400,7 +400,7 @@ export default {
 
   async  refreshWeb3Accounts(){
       if ( window.ethereum.selectedAddress) {
-        this.providerNetworkID = await Web3Helper.getProviderNetworkID();
+        this.providerNetworkID = await Web3Plug.getProviderNetworkID();
         this.activeAccountAddress = window.ethereum.selectedAddress
 
           console.log('this.activeAccountAddress ',this.activeAccountAddress )
@@ -465,13 +465,13 @@ export default {
          var userAddress = this.activeAccountAddress;
 
          const UnlimitedAmount = 100000000
-         var amtRaw  = Web3Helper.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+         var amtRaw  = Web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
 
-         let contractData =  Web3Helper.getContractDataForNetworkID(networkId)
+         let contractData =  Web3Plug.getContractDataForNetworkID(networkId)
 
          let tokenAddress = contractData["0xbitcoin"].address
 
-         var tokenContract = await Web3Helper.getTokenContract(web3,tokenAddress)
+         var tokenContract = await Web3Plug.getTokenContract(web3,tokenAddress)
 
          var zapInContractAddress = contractData["uniswapv2add"].address
 
@@ -496,13 +496,13 @@ export default {
      var userAddress = this.activeAccountAddress;
 
      const UnlimitedAmount = 100000000000000
-     var amtRaw  = Web3Helper.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['LPToken']['Decimals']);
+     var amtRaw  = Web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['LPToken']['Decimals']);
 
-     let contractData =  Web3Helper.getContractDataForNetworkID(networkId)
+     let contractData =  Web3Plug.getContractDataForNetworkID(networkId)
 
      let tokenAddress = contractData["0xbitcoinmarketpair"].address
 
-     var tokenContract = await Web3Helper.getTokenContract(web3,tokenAddress)
+     var tokenContract = await Web3Plug.getTokenContract(web3,tokenAddress)
 
      var zapOutContractAddress = contractData["uniswapv2remove"].address
 
@@ -526,22 +526,22 @@ export default {
       let assetName = 'ETH'
 
       var userAddress = this.activeAccountAddress;
-      var amtRaw  = Web3Helper.formattedAmountToRaw(this.zapInETHAmount, CryptoAssets.assets[assetName]['Decimals']);
+      var amtRaw  = Web3Plug.formattedAmountToRaw(this.zapInETHAmount, CryptoAssets.assets[assetName]['Decimals']);
 
       console.log('zap in eth!', userAddress, amtRaw)
 
-      var zapInContract = await Web3Helper.getZapInContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
+      var zapInContract = await Web3Plug.getZapInContract( window.web3, Web3Plug.getWeb3NetworkName( networkId ) );
 
-       const wethContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["weth"].address
-      const zxbtcContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
+       const wethContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["weth"].address
+      const zxbtcContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
 
       var tokenAddress =  "0x0000000000000000000000000000000000000000"
-      var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
+      var marketPairAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
 
 
       //should this be 0.45 multiplier ??
-      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH',  amtRaw , this.providerNetworkID);
+      var swapQuote = await Web3Plug.get0xSwapQuote(zxbtcContractAddress, 'ETH',  amtRaw , this.providerNetworkID);
       var swapData = swapQuote.data
 
       var allowanceTarget = swapQuote.to
@@ -572,22 +572,22 @@ export default {
 
 
           var userAddress = this.activeAccountAddress;
-          var amtRaw  = Web3Helper.formattedAmountToRaw(this.zapInZXBTCAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+          var amtRaw  = Web3Plug.formattedAmountToRaw(this.zapInZXBTCAmount, CryptoAssets.assets['0xBTC']['Decimals']);
 
           console.log('zap in 0xBTC!', userAddress, amtRaw)
 
-          var zapInContract = await Web3Helper.getZapInContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
+          var zapInContract = await Web3Plug.getZapInContract( window.web3, Web3Plug.getWeb3NetworkName( networkId ) );
 
-           const wethContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["weth"].address
-          const zxbtcContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
+           const wethContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["weth"].address
+          const zxbtcContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
 
           var tokenAddress =  zxbtcContractAddress
-          var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
+          var marketPairAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
 
 
           //should this be 0.45 multiplier ??
-          var swapQuote = await Web3Helper.get0xSwapQuote('ETH', zxbtcContractAddress,  amtRaw , this.providerNetworkID);
+          var swapQuote = await Web3Plug.get0xSwapQuote('ETH', zxbtcContractAddress,  amtRaw , this.providerNetworkID);
           var swapData = swapQuote.data
 
           var allowanceTarget = swapQuote.to
@@ -617,13 +617,13 @@ export default {
       let networkId = this.providerNetworkID
       var userAddress = this.activeAccountAddress;
 
-      var zapOutContract = await Web3Helper.getZapOutContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
+      var zapOutContract = await Web3Plug.getZapOutContract( window.web3, Web3Plug.getWeb3NetworkName( networkId ) );
 
 
         console.log('zapout' )
 
       var tokenAddress =  "0x0000000000000000000000000000000000000000" //to receive ETh
-      var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
+      var marketPairAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
       var incomingLP = this.currentBalances.lpToken //all of them
 
@@ -648,13 +648,13 @@ export default {
       let networkId = this.providerNetworkID
       var userAddress = this.activeAccountAddress;
 
-      var zapOutContract = await Web3Helper.getZapOutContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
+      var zapOutContract = await Web3Plug.getZapOutContract( window.web3, Web3Plug.getWeb3NetworkName( networkId ) );
 
 
         console.log('zapout' )
 
-      var tokenAddress =  Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address
-      var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
+      var tokenAddress =  Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoin"].address
+      var marketPairAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
       var incomingLP =  this.currentBalances.lpToken //all of them
 

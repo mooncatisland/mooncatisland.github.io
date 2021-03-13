@@ -69,10 +69,7 @@ const web3PlugEmitter = new Web3PlugEmitter();
   const mainnetChainID = 1
   const kovanChainID = 42
 
-  const networkIds= {
-    "mainnet":1,
-    "kovan":42
-  }
+
 
 
 export default class Web3Plug {
@@ -101,10 +98,6 @@ export default class Web3Plug {
       }
   }
 
-  getWeb3(){
-    return window.web3
-  }
-
   getPlugEventEmitter(){
     return web3PlugEmitter
   }
@@ -118,14 +111,13 @@ export default class Web3Plug {
 
   static getWeb3NetworkName(networkId){
 
-    for (const [key, value] of Object.entries(networkIds)) {
- 
-      if(networkId == value){
-        return key
-      }
+    if(networkId == mainnetChainID){
+      return 'mainnet'
     }
 
-   
+    if(networkId == kovanChainID){
+      return 'kovan'
+    }
 
      console.error('Invalid network Id: ',networkId)
     return null
@@ -133,7 +125,7 @@ export default class Web3Plug {
 
 
   getContractDataForNetworkID(networkId){
-    let netName = Web3Plug.getWeb3NetworkName(networkId)
+    let netName = this.getWeb3NetworkName(networkId)
 
     if(netName){
         return contractData[netName].contracts

@@ -4,10 +4,10 @@
     <div class="container w-container">
       <div class="w-full w-clearfix">
         <a href="/" class="brand w-nav-brand w--current">
-          ⛏️
-          <div class=" text-block-10">Farm.mineabletokens.com</div>
+          🌴
+          <div class=" text-block-10">Mooncat Island</div>
        </a>
-
+ 
        <div class="hidden lg:inline-block   " style="float:right">
          <UpperNav />
        </div>

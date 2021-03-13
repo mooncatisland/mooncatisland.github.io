@@ -12,25 +12,7 @@
    </div>
 
 
-    <div class="section dark   ">
-
-       <div v-if="connectedToWeb3() == false" @click="connectWeb3()" class="button pull-right bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Connect to Web3</div>
-
-      <div v-if="connectedToWeb3() "   class="truncate text-white pull-right" style="max-width:250px;  ">
-
-
-
-        <Web3NetButton
-           v-bind:providerNetworkID="providerNetworkID"
-         />
-
-
-
-       </div>
-
-
-        
-    </div>
+   
 
    <div class="section dark   ">
      <div class="w-container pt-8">
