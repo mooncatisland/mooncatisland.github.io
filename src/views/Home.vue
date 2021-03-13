@@ -19,13 +19,19 @@
      <div class="w-container pt-8 flex flex-row">
 
        <div class=" relative " style="width:90px"> 
-          <MiniNav />
+          <MiniNav
+           v-bind:activePanelId="activePanelId"
+           v-bind:onClickedCallback="setActivePanel"
+            />
         </div>
 
         <div class="flex-grow bg-gray-200" style="min-height:700px"  >
             <h1>Moon cat viewer</h1>
 
-            <AppPanel />
+            <AppPanel
+            v-bind:activePanelId="activePanelId"
+            
+             />
         </div>
 
        
@@ -84,7 +90,8 @@ export default {
   components: {Navbar,AppPanel,MiniNav,Footer},
   data() {
     return {
-      web3Plug: new Web3Plug()
+      web3Plug: new Web3Plug(),
+      activePanelId: null
     }
   },
   mounted: function () {
@@ -113,24 +120,11 @@ export default {
   },
   methods: {
 
-          connectWeb3(){
-                this.web3Plug.connectWeb3( )
-
-              let networkName = Web3Plug.getWeb3NetworkName(this.activeNetworkId)
-
-               
-                let accounts = this.web3Plug. getConnectedAccounts()
-
-                let primaryAccount = accounts[0]
-              //  let myTokenContract = this.web3Plug.getTokenContract(window.web3, contractData['mooncatrescue'].address)
-
-
-                this.scanForCatsAtAddress( primaryAccount )
+          setActivePanel(panelId){
+               this.activePanelId = panelId ;
           },
 
-          connectedToWeb3(){
-            return false 
-          },  
+         
 
           async scanForCatsAtAddress( ){
 

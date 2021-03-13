@@ -210,24 +210,16 @@ import YieldFarmingLabel from './YieldFarmingLabel.vue'
 import Web3Plug from '../../js/web3-plug.js'
 
 export default {
-  name: 'ZapPanel',
-  props: [ ],
-  components:{Web3NetButton,YieldFarmingLabel},
+  name: 'AppPanel',
+  props: ['activePanelId', 'onClickedCallback'],
+  components:{ },  
+  components:{Web3NetButton },
   data() {
     return {
       activeAccountAddress: null,
       providerNetworkID: null,
 
-      cryptoAssets: CryptoAssets,
-
-      currentBalances: {eth:0, zxbtc:0, lptoken:0, calcEthFromLP:0, calcZxbtcFromLP:0  },
-
-
-      zapInETHAmount: 0,
-      zapInZXBTCAmount: 0,
-
-      zapOutLPTokensApproved: 0,
-      zapInZXBTCApproved: 0,
+      
 
       txError: null,
 
@@ -238,14 +230,7 @@ export default {
   {
 
     setInterval(this.refreshBalances, 10*1000);
- /*
-
-
-    setInterval(this.updateBalance, 10000);
-
-    setInterval(this.updateFormMode, 6000);
-
-    setInterval(this.updateEstimatedEarnings, 100);*/
+ 
   },
   updated()
   {
@@ -259,130 +244,18 @@ export default {
 
       let contractData = Web3Plug.getContractDataForNetworkID(this.providerNetworkID)
 
-      let zcbtcTokenAddress = contractData["0xbitcoin"].address
-      let lpTokenAddress = contractData["0xbitcoinmarketpair"].address
-
-      let zapInContractAddress = contractData["uniswapv2add"].address
-      let zapOutContractAddress = contractData["uniswapv2remove"].address
-
-       this.currentBalances.eth = await Web3Plug.getETHBalance(this.activeAccountAddress)
-       this.currentBalances.zxbtc = await Web3Plug.getTokenBalance(zcbtcTokenAddress, this.activeAccountAddress)
-
-       this.currentBalances.lpToken = await Web3Plug.getTokenBalance(lpTokenAddress, this.activeAccountAddress)
-
-       this.zapOutLPTokensApproved= await Web3Plug.getTokensAllowance(lpTokenAddress,  this.activeAccountAddress, zapOutContractAddress)
-       this.zapInZXBTCApproved=  await Web3Plug.getTokensAllowance(zcbtcTokenAddress,  this.activeAccountAddress, zapInContractAddress)
-
-       let zapOutEstimate = await this.estimateZapOutAmountFromLPTokens()
-
-       this.currentBalances.calcZxbtcFromLP = zapOutEstimate[0]
-       this.currentBalances.calcEthFromLP = zapOutEstimate[1]
+     
 
     },
 
 
-  async estimateZapOutAmountFromLPTokens(){
-         let myLpTokenBalance =  this.currentBalances.lpToken
-
-         let networkId = this.providerNetworkID
-
-         let contractData =  Web3Plug.getContractDataForNetworkID(networkId)
-         let uniswapPairContractAddress = contractData["0xbitcoinmarketpair"].address
-         let uniswapRouterContractAddress = contractData["uniswapv2router"].address
-
-         let uniswapRouterContract = await Web3Plug.getUniswapRouterContract( window.web3, uniswapRouterContractAddress )
-         let uniswapPairContract = await Web3Plug.getUniswapPairContract( window.web3, uniswapPairContractAddress )
-
-
-         let totalLpTokenSupply =  await Web3Plug.getTotalLPTokenSupply(uniswapPairContract)
-
-        /// let priceEstimate = await Web3Plug.getMarketPairPriceEstimate(uniswapPairContract)
-         let pairReserves  = await Web3Plug.getMarketPairReserves(uniswapPairContract)
-
-
-
-         console.log("pairReserves ",  pairReserves  )
-
-
-
-         let myLpTokenFraction =  (myLpTokenBalance / totalLpTokenSupply)
-
-      //   let priceRatioEstimated = Web3Plug.rawAmountToFormatted(priceEstimate[0], 18) / Web3Plug.rawAmountToFormatted(priceEstimate[1], 8)
-
-
-         let myPooledZXBTCTokenShare = Math.floor( myLpTokenFraction *  pairReserves[0] )
-         let myPooledEthShare = Math.floor( myLpTokenFraction *  pairReserves[1] )
-
-           console.log("myPooledZXBTCTokenShare", myPooledZXBTCTokenShare)
-             console.log("myPooledEthShare", myPooledEthShare)
-
-             if(myLpTokenFraction <= 0.0000000001){
-                 return [0 , 0]
-             }
-
-         let myPooledEthShareInTermsOfZXBTC = await Web3Plug.getUniSwapEstimate(uniswapRouterContract, myPooledEthShare.toString(), pairReserves[1], pairReserves[0] )
-         let myPooledZXBTCShareInTermsOfETH = await Web3Plug.getUniSwapEstimate(uniswapRouterContract, myPooledZXBTCTokenShare.toString(), pairReserves[0], pairReserves[1] )
-
-            console.log("myPooledEthShareInTermsOfZXBTC", myPooledEthShareInTermsOfZXBTC)
-
-            console.log("myPooledZXBTCShareInTermsOfETH",  myPooledZXBTCShareInTermsOfETH)
-
-          let myTotalZapoutZXBTCEstimate = parseInt(myPooledZXBTCTokenShare) + parseInt(myPooledEthShareInTermsOfZXBTC)
-          let myTotalZapoutEthEstimate = parseInt(myPooledEthShare) + parseInt(myPooledZXBTCShareInTermsOfETH)
-
-          console.log("myTotalZapoutZXBTCEstimate", myTotalZapoutZXBTCEstimate )
-          console.log("myTotalZapoutEthEstimate", myTotalZapoutEthEstimate )
-
-
-          return [myTotalZapoutZXBTCEstimate , myTotalZapoutEthEstimate]
-
-  },
-
-
+   
 
   rawAmountToFormatted(amount,decimals){
 
     return Web3Plug.rawAmountToFormatted(amount, decimals)
   },
-
-
-
-  /*  updateAll()
-    {
-        console.log('form updated')
-      // this.updateFormMode();
-      // this.updateBalance();
-    },
-    currentDomainName(){
-      if(this.activeWalletDomain == "matic"){ return "Matic Network" }else{ return "Tip Jar" }
-    },
-    otherDomainName(){
-      if(this.activeWalletDomain == "matic"){ return "Tip Jar" }else{ return "Matic Network" }
-    },
-    getAssetNickname(){
-       return CryptoAssets.assets[this.assetName]['Nickname'];
-    },*/
-
-    async connectWeb3(){
-      console.log('connect')
-      if (window.ethereum) {
-           window.web3 = new Web3(window.ethereum);
-           window.ethereum.enable();
-
-           window.ethereum.on('accountsChanged', (accounts) => {
-                  this.refreshWeb3Accounts()
-            });
-
-          ethereum.on('chainChanged', (chainId) => {
-                  this.refreshWeb3Accounts()
-             });
-
-
-          this.refreshWeb3Accounts()
-
-
-         }
-    },
+ 
 
   async  refreshWeb3Accounts(){
       if ( window.ethereum.selectedAddress) {
