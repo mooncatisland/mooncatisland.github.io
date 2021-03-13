@@ -165,7 +165,7 @@ export default {
 
 
    async refreshBalances(){
-
+     console.log('refreshBalances')
     //  let contractData = Web3Plug.getContractDataForNetworkID(this.providerNetworkID)
 
      
@@ -220,30 +220,33 @@ export default {
 
        async approveTokenForMoonbank(){
 
-         let networkId = this.providerNetworkID
+         let networkId = this.web3Plug.getActiveNetId()
 
-         var userAddress = this.activeAccountAddress;
+         var userAddress = this.web3Plug.getActiveAccountAddress();
 
          const UnlimitedAmount = 100000000
-         var amtRaw  = Web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+         var amtRaw  = this.web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
 
-         let contractData =  Web3Plug.getContractDataForNetworkID(networkId)
+         let contractData =  this.web3Plug.getContractDataForNetworkID(networkId)
 
          let tokenAddress = contractData["0xbitcoin"].address
 
-         var tokenContract = await Web3Plug.getTokenContract(web3,tokenAddress)
+        let web3 = window.web3 
 
-         var zapInContractAddress = contractData["uniswapv2add"].address
+        console.log('wb3', web3)
 
-         tokenContract.methods.approve(zapInContractAddress,amtRaw).send({from: userAddress })
+         var tokenContract =  this.web3Plug.getTokenContract(web3, tokenAddress)
+
+         var moonBankContractAddress = contractData["moonmoney"].address
+
+         tokenContract.methods.approve(moonBankContractAddress,amtRaw).send({from: userAddress })
          .then(function(receipt){
            console.log(receipt)
 
            this.refreshWeb3Accounts()
              // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
          }.bind(this));
-
-
+ 
 
 
        },
@@ -255,34 +258,21 @@ export default {
       ///Need approval 
         async stakeTokenForMoonbank()
         {
-          let networkId = this.providerNetworkID
+         
+       let networkId = this.web3Plug.getActiveNetId()
 
+         var userAddress = this.web3Plug.getActiveAccountAddress();
 
-          var userAddress = this.activeAccountAddress;
-          var amtRaw  = Web3Plug.formattedAmountToRaw(this.zapInZXBTCAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+         const UnlimitedAmount = 100000000
+         var amtRaw  = this.web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
 
-          console.log('zap in 0xBTC!', userAddress, amtRaw)
+         let contractData =  this.web3Plug.getContractDataForNetworkID(networkId)
 
-          var zapInContract = await Web3Plug.getZapInContract( window.web3, Web3Plug.getWeb3NetworkName( networkId ) );
+         let tokenAddress = contractData["0xbitcoin"].address
 
-           const wethContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["weth"].address
-          const zxbtcContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
+         var tokenContract = await Web3Plug.getTokenContract(web3,tokenAddress)
 
-          var tokenAddress =  zxbtcContractAddress
-          var marketPairAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
-
-
-
-          //should this be 0.45 multiplier ??
-          var swapQuote = await Web3Plug.get0xSwapQuote('ETH', zxbtcContractAddress,  amtRaw , this.providerNetworkID);
-          var swapData = swapQuote.data
-
-          var allowanceTarget = swapQuote.to
-          var swapTarget = swapQuote.to
-
-          var minPoolTokens = 0 // for now -- helps against front running
-          let tokensAmount =  swapQuote.sellAmount
-
+         var moonBankContractAddress = contractData["moonmoney"].address
           zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, tokensAmount, minPoolTokens, allowanceTarget, swapTarget, swapData )
           .send({from: userAddress })
           .then(function(receipt){

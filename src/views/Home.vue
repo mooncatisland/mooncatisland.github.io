@@ -96,6 +96,8 @@ export default {
   },
   mounted: function () {
 
+    this.web3Plug.reconnectWeb()
+
     this.web3Plug.getPlugEventEmitter().on('stateChanged', function(connectionState) {
         console.log('stateChanged',connectionState);
 

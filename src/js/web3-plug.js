@@ -55,16 +55,18 @@
 
 const Web3 = require('web3');
 const web3utils = Web3.utils;
-const BigNumber = Web3.utils.BN;
+ 
+import BigNumber from 'bignumber.js'
 
 const contractData = require('../config/contractdata.json')
+const tokenContractABI = require('../contracts/ERC20ABI')
 
 const EventEmitter = require('events');
 class Web3PlugEmitter extends EventEmitter {}
 
 const web3PlugEmitter = new Web3PlugEmitter();
 
-
+var web3Instance = null 
  
   let networkIds = {
     'mainnet':1,
@@ -74,12 +76,31 @@ const web3PlugEmitter = new Web3PlugEmitter();
 
 export default class Web3Plug {
 
+  async reconnectWeb(){
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      web3Instance = window.web3
+
+      window.ethereum.on('accountsChanged', (accounts) => {
+        web3PlugEmitter.emit('stateChanged', this.getConnectionState() )
+      });
+
+      window.ethereum.on('chainChanged', (chainId) => {
+              web3PlugEmitter.emit('stateChanged', this.getConnectionState() )
+      });
+    }
+
+  }
+
   async connectWeb3(   ){
 
     console.log('connectWeb3')
 
     if (window.ethereum) {
          window.web3 = new Web3(window.ethereum);
+
+         web3Instance = window.web3 
+
          window.ethereum.enable();
 
          window.ethereum.on('accountsChanged', (accounts) => {
@@ -104,6 +125,9 @@ export default class Web3Plug {
   } 
 
 
+  getWeb3Instance(){
+    return  web3Instance
+  }
 
   getPlugEventEmitter(){
     return web3PlugEmitter
@@ -158,19 +182,19 @@ export default class Web3Plug {
   }
 
 
-  getTokenContract(web3, contractAddress)
-  {
+  getTokenContract(web3,  contractAddress)
+  { 
 
-    var tokenContract = new web3.eth.Contract(tokenContractABI,contractAddress)
+    console.log('web3Instance', web3Instance)
+    var tokenContract = new web3Instance.eth.Contract(tokenContractABI,contractAddress)
 
     return tokenContract;
   }
 
 
-  getCustomContract(web3, contractABI, contractAddress)
-  {
-
-    var contract = new web3.eth.Contract(contractABI,contractAddress)
+  getCustomContract( web3,  contractABI, contractAddress)
+  { 
+    var contract = new web3Instance.eth.Contract(contractABI,contractAddress)
 
     return contract;
   }
@@ -201,7 +225,9 @@ export default class Web3Plug {
   }
 
   formattedAmountToRaw(amountFormatted,decimals)
-  {
+  { 
+    console.log(new BigNumber( 10 ))
+     
 
     var multiplier = new BigNumber( 10 ).exponentiatedBy( decimals ) ;
 
