@@ -98,7 +98,7 @@ body {
 
 .bg-world {
   padding-bottom: 0%;
-  background-image: url('../assets/images/0xworld.svg'), url('../assets/images/old_moon_4X.jpg');
+  background-image: url('../assets/images/waves1.svg'), url('../assets/images/sandrepeat.jpg');
   background-position: 75% 50%, 0px 0px;
   background-size: 650px, 400px;
   background-repeat: no-repeat, repeat;

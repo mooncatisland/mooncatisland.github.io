@@ -5,21 +5,7 @@
       <div>
       <h3 class="text-lg font-bold inline text-white">Yield Farm: 0xBTC-ETH Pair </h3>
 
-      <div v-if="connectedToWeb3() == false" @click="connectWeb3()" class="button pull-right bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Connect to Web3</div>
-
-      <div v-if="connectedToWeb3() "   class="truncate text-white pull-right" style="max-width:250px;  ">
-
-
-
-        <Web3NetButton
-           v-bind:providerNetworkID="providerNetworkID"
-         />
-
-        <span class="truncate" style="max-width:120px">
-        <a   v-bind:href="getEtherscanBaseURL()+'/address/'+activeAccountAddress" class="text-green-500  "   target="_blank">  {{activeAccountAddress}} </a>
-       </span>
-       </div>
-
+     
 
       </div>
 

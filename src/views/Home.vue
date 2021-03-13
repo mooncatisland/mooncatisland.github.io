@@ -13,6 +13,26 @@
 
 
    
+    <div class="section dark   ">
+     <div class="w-container pt-8 flex flex-row">
+
+       <div class=" relative " style="width:90px"> 
+          <MiniNav />
+        </div>
+
+        <div class="flex-grow bg-gray-200" style="min-height:700px"  >
+            <h1>Moon cat viewer</h1>
+
+            <AppPanel />
+        </div>
+
+       
+
+     </div>
+   </div>
+
+
+
 
    <div class="section dark   ">
      <div class="w-container pt-8">
@@ -38,13 +58,14 @@
 
 <script>
 import Navbar from './components/Navbar.vue';
-import ZapPanel from './components/ZapPanel.vue';
+import AppPanel from './components/AppPanel.vue';
 import Footer from './components/Footer.vue';
+import MiniNav from './components/MiniNav.vue'
 
 import MoonCatTools from '../js/moon-cat-tools.js' 
 
 import Web3Plug from '../js/web3-plug.js' 
- 
+
 
 const mooncatContractABI = require('../contracts/MoonCatRescue.json')
 
@@ -58,7 +79,7 @@ export default {
 
 
   ],
-  components: {Navbar,ZapPanel,Footer},
+  components: {Navbar,AppPanel,MiniNav,Footer},
   data() {
     return {
       web3Plug: new Web3Plug()
