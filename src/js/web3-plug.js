@@ -65,11 +65,11 @@ class Web3PlugEmitter extends EventEmitter {}
 const web3PlugEmitter = new Web3PlugEmitter();
 
 
-
-  const mainnetChainID = 1
-  const kovanChainID = 42
-
-
+ 
+  let networkIds = {
+    'mainnet':1,
+    'kovan':42 
+  }
 
 
 export default class Web3Plug {
@@ -98,6 +98,13 @@ export default class Web3Plug {
       }
   }
 
+  connectedToWeb3(){
+
+    return  this.getActiveAccountAddress() != null
+  } 
+
+
+
   getPlugEventEmitter(){
     return web3PlugEmitter
   }
@@ -109,16 +116,25 @@ export default class Web3Plug {
     }
   }
 
-  static getWeb3NetworkName(networkId){
+  getActiveAccountAddress(){
+    return window.ethereum.selectedAddress
 
-    if(networkId == mainnetChainID){
-      return 'mainnet'
-    }
+  }
+  getActiveNetId(){
+    return window.ethereum.chainId
 
-    if(networkId == kovanChainID){
-      return 'kovan'
-    }
+  }
 
+    getWeb3NetworkName(networkId){
+      console.log('net id', networkId)
+
+      for (const [key, value] of Object.entries(networkIds)) {
+        if(value == networkId){
+          return key 
+        }
+      }
+
+  
      console.error('Invalid network Id: ',networkId)
     return null
   }

@@ -1,6 +1,6 @@
 <template>
   <div class=" ">
-     <h3 class="text-lg font-bold inline text-white"> Mooncats </h3>
+     <h3 class="text-lg font-bold inline text-white text-gray-700"> Mooncats </h3>
 
   </div>
 </template>

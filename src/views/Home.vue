@@ -26,11 +26,11 @@
         </div>
 
         <div class="flex-grow bg-gray-200" style="min-height:700px"  >
-            <h1>Moon cat viewer</h1>
+            
 
             <AppPanel
-            v-bind:activePanelId="activePanelId"
-            
+               v-bind:activePanelId="activePanelId"
+               v-bind:web3Plug="web3Plug"
              />
         </div>
 
@@ -42,7 +42,7 @@
 
 
 
-   <div class="section dark   ">
+   <div class="section dark hidden  ">
      <div class="w-container pt-8">
 
        <h1>Moon cat viewer</h1>
@@ -121,6 +121,11 @@ export default {
   methods: {
 
           setActivePanel(panelId){
+              if(panelId == this.activePanelId){
+                this.activePanelId = null;
+                return 
+              }
+
                this.activePanelId = panelId ;
           },
 

@@ -1,27 +1,284 @@
+
 <template>
-  <div class=" ">
-     <h3 class="text-lg font-bold inline text-white"> Welcome to Mooncat Island </h3>
+    <div class="bg-gray-800 p-8">
 
-  </div>
+      <div>
+      <h3 class="text-lg font-bold inline text-white">Yield Farm: 0xBTC-ETH Pair </h3>
+
+     
+
+      </div>
+
+
+
+      <div v-if="networkProviderIdError" class="p-8 bg-red-200">
+        {{networkProviderIdError}}
+      </div>
+
+
+
+
+
+      <div v-if="connectedToWeb3() " >
+
+
+          <div class="flex flex-row pt-8 text-white text-md"   >
+
+            <div class="p-4  w-full text-center  ">
+               ETH: {{  web3Plug.rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
+            </div>
+
+            <div class="p-4  w-full text-center relative ">
+
+              <div class="absolute" style="right: 25px; top:-5px"  >
+               
+
+
+              </div>
+
+               Deposited (Est. ETH Value): {{  web3Plug.rawAmountToFormatted(currentBalances.calcEthFromLP, cryptoAssets.assets['ETH']['Decimals'])  }}
+            </div>
+
+          </div>
+
+
+        <div  class="mb-12">
+
+         
+
+          
+
+
+        </div>
+
+        <div class="m-4">
+          <div v-if="txError">{{txError}}</div>
+
+        </div>
+
+
+
+      </div>
+
+
+
+      <div v-if="connectedToWeb3() " >
+
+
+        
+
+
+        <div  class="mb-12">
+
+          
+
+
+          
+
+
+        </div>
+
+        <div class="m-4">
+          <div v-if="txError">{{txError}}</div>
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+    </div>
 </template>
-
 
 <script>
 
+const Web3 = require('web3')
+
+var BN = Web3.utils.BN;
+
+
+const CryptoAssets = require('../../config/cryptoassets.json')
+
+ 
+
+import Web3Plug from '../../js/web3-plug.js'
 
 export default {
-  name: 'WelcomePanel',
-  props: [],
+  name: 'BankPanel',
+  props: [ 'web3Plug' ], 
+  components:{  },
   data() {
     return {
+     // activeAccountAddress: null,
+      providerNetworkID: null,
 
+      currentBalances: {} , 
+      cryptoAssets: CryptoAssets, 
+
+      txError: null,
+
+      networkProviderIdError: null
     }
   },
-  created(){
+ async  mounted()
+  {
+    this.refreshBalances()
+    setInterval(this.refreshBalances, 10*1000);
+ 
+  },
+  updated()
+  {
 
+    //this.updateAll();
   },
   methods: {
 
+
+   async refreshBalances(){
+
+    //  let contractData = Web3Plug.getContractDataForNetworkID(this.providerNetworkID)
+
+     
+
+    },
+
+
+   
+ 
+
+  async  refreshWeb3Accounts(){
+      if ( window.ethereum.selectedAddress) {
+        this.providerNetworkID = await Web3Plug.getProviderNetworkID();
+        this.activeAccountAddress = window.ethereum.selectedAddress
+
+          console.log('this.activeAccountAddress ',this.activeAccountAddress )
+
+          this.refreshBalances()
+      }
+
+    },
+
+    connectedToWeb3(){
+      console.log('conn', this.web3Plug.getActiveAccountAddress())
+      return this.web3Plug.getActiveAccountAddress() != null
+    },
+
+ 
+
+
+    checkNetworkProviderIdValid(){
+
+        if(this.providerNetworkID !=  1 )
+        {
+          this.networkProviderIdError = "Please switch your Web3 Provider to Ethereum Mainnet to call these methods."
+          return false
+        }
+
+ 
+      return true;
+    },
+
+    getEtherscanBaseURL(){
+        if(this.providerNetworkID == 42){
+          return  'https://kovan.etherscan.io'
+        }
+
+        return 'https://etherscan.io'
+    },
+
+ 
+
+       async approveZapInZXBTCTokens(){
+
+         let networkId = this.providerNetworkID
+
+         var userAddress = this.activeAccountAddress;
+
+         const UnlimitedAmount = 100000000
+         var amtRaw  = Web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+
+         let contractData =  Web3Plug.getContractDataForNetworkID(networkId)
+
+         let tokenAddress = contractData["0xbitcoin"].address
+
+         var tokenContract = await Web3Plug.getTokenContract(web3,tokenAddress)
+
+         var zapInContractAddress = contractData["uniswapv2add"].address
+
+         tokenContract.methods.approve(zapInContractAddress,amtRaw).send({from: userAddress })
+         .then(function(receipt){
+           console.log(receipt)
+
+           this.refreshWeb3Accounts()
+             // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+         }.bind(this));
+
+
+
+
+       },
+
+ 
+
+
+
+      ///Need approval?
+        async zapInToken()
+        {
+          let networkId = this.providerNetworkID
+
+
+          var userAddress = this.activeAccountAddress;
+          var amtRaw  = Web3Plug.formattedAmountToRaw(this.zapInZXBTCAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+
+          console.log('zap in 0xBTC!', userAddress, amtRaw)
+
+          var zapInContract = await Web3Plug.getZapInContract( window.web3, Web3Plug.getWeb3NetworkName( networkId ) );
+
+           const wethContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["weth"].address
+          const zxbtcContractAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
+
+          var tokenAddress =  zxbtcContractAddress
+          var marketPairAddress = Web3Plug.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
+
+
+
+          //should this be 0.45 multiplier ??
+          var swapQuote = await Web3Plug.get0xSwapQuote('ETH', zxbtcContractAddress,  amtRaw , this.providerNetworkID);
+          var swapData = swapQuote.data
+
+          var allowanceTarget = swapQuote.to
+          var swapTarget = swapQuote.to
+
+          var minPoolTokens = 0 // for now -- helps against front running
+          let tokensAmount =  swapQuote.sellAmount
+
+          zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, tokensAmount, minPoolTokens, allowanceTarget, swapTarget, swapData )
+          .send({from: userAddress })
+          .then(function(receipt){
+            console.log(receipt)
+            this.refreshWeb3Accounts()
+              // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+          }.bind(this));
+
+
+
+
+        },
+
+
+ 
+
+
+
   }
 }
+
 </script>
