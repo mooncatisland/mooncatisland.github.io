@@ -11,7 +11,28 @@
 
    </div>
 
-   <div class="section dark autospacing ">
+
+    <div class="section dark   ">
+
+       <div v-if="connectedToWeb3() == false" @click="connectWeb3()" class="button pull-right bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Connect to Web3</div>
+
+      <div v-if="connectedToWeb3() "   class="truncate text-white pull-right" style="max-width:250px;  ">
+
+
+
+        <Web3NetButton
+           v-bind:providerNetworkID="providerNetworkID"
+         />
+
+
+
+       </div>
+
+
+        
+    </div>
+
+   <div class="section dark   ">
      <div class="w-container pt-8">
 
        <h1>Moon cat viewer</h1>
@@ -40,21 +61,94 @@ import Footer from './components/Footer.vue';
 
 import MoonCatTools from '../js/moon-cat-tools.js' 
 
+import Web3Plug from '../js/web3-plug.js' 
+ 
+
+const mooncatContractABI = require('../contracts/MoonCatRescue.json')
+
 let moonCatTools = new MoonCatTools()
 
 export default {
   name: 'Home',
-  props: [],
+  props: [
+
+    
+
+
+  ],
   components: {Navbar,ZapPanel,Footer},
   data() {
     return {
-
+      web3Plug: new Web3Plug()
     }
   },
   mounted: function () {
-      this.generateMoonCatImage('0x0064c9c57b', 2 );
+
+    this.web3Plug.getPlugEventEmitter().on('stateChanged', function(connectionState) {
+        console.log('stateChanged',connectionState);
+
+        // CUSTOM CODE HERE
+        this.activeAccountAddress = connectionState.activeAccountAddress
+        this.activeNetworkId = connectionState.activeNetworkId
+        // END CUSTOM CODE
+
+      }.bind(this));
+
+   this.web3Plug.getPlugEventEmitter().on('error', function(errormessage) {
+        console.error('error',errormessage);
+
+        //CUSTOM CODE HERE
+        this.web3error = errormessage
+        // END CUSTOM CODE
+      }.bind(this));
+
+
+   
+   //    this.generateMoonCatImage('0x0064c9c57b', 2 );
   },
   methods: {
+
+          connectWeb3(){
+                this.web3Plug.connectWeb3( )
+
+              let networkName = Web3Plug.getWeb3NetworkName(this.activeNetworkId)
+
+               
+                let accounts = this.web3Plug. getConnectedAccounts()
+
+                let primaryAccount = accounts[0]
+              //  let myTokenContract = this.web3Plug.getTokenContract(window.web3, contractData['mooncatrescue'].address)
+
+
+                this.scanForCatsAtAddress( primaryAccount )
+          },
+
+          connectedToWeb3(){
+            return false 
+          },  
+
+          async scanForCatsAtAddress( ){
+
+               let contractData = this.web3Plug.getContractDataForNetworkID(this.activeNetworkId)
+
+            let web3 = this.web3Plug.getWeb3()
+
+              
+            let mooncatContract = this.web3Plug.getCustomContract(web3, mooncatContractABI,  contractData['mooncatrescue'].address)
+
+            let events = await mooncatContract.getPastEvents(evt)
+
+           /*  web3.eth.filter({
+              address: contractData['mooncatrescue'].address,
+              from: 1,
+              to: 'latest'
+            }).get(function (err, result) {
+              // callback code here
+              console.log('meep ', result )
+            })*/
+
+          },
+
           generateMoonCatImage(catId, size){
             console.log('meow', catId)
             size = size || 10;

@@ -9,9 +9,9 @@
       "uniswapv2add":{"address":"0xD3cF4e98e1e432B3d6Ae42AE406A78F2AC8293D0"},
       "uniswapv2remove":{"address":"0x79B6C6F8634ea477ED725eC23b7b6Fcb41F00E58"},
       "weth":{"address":"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"},
-      "0xbitcoinmarketpair":{"address":"0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"}
+      "0xbitcoinmarketpair":{"address":"0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"},
 
-
+      "mooncatrescue":{"address":"0x60cd862c9c687a9de49aecdc3a99b74a4fc54ab6"}
     }
 
 
