@@ -21,13 +21,19 @@
 
 
 
-      <div v-if="connectedToWeb3() " >
+      <div v-if="web3Plug.connectedToWeb3() " >
 
 
           <div class="flex flex-row pt-8 text-white text-md"   >
 
-            <div class="p-4  w-full text-center  ">
-               ETH: {{  web3Plug.rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
+            <div class="flex flex-col  w-full">
+                <div class="p-4  w-full text-center  ">
+                  External 0xBTC: {{  web3Plug.rawAmountToFormatted(currentBalances.zxbtc, cryptoAssets.assets['0xBTC']['Decimals'])  }}
+                </div>
+
+                <div class="p-4  w-full text-center  ">
+                  Approved 0xBTC: {{  web3Plug.rawAmountToFormatted(currentBalances.zxbtc, cryptoAssets.assets['0xBTC']['Decimals'])  }}
+                </div>
             </div>
 
             <div class="p-4  w-full text-center relative ">
@@ -38,13 +44,13 @@
 
               </div>
 
-               Deposited (Est. ETH Value): {{  web3Plug.rawAmountToFormatted(currentBalances.calcEthFromLP, cryptoAssets.assets['ETH']['Decimals'])  }}
+               Deposited 0xBTC: {{  web3Plug.rawAmountToFormatted(currentBalances.calcEthFromLP, cryptoAssets.assets['0xBTC']['Decimals'])  }}
             </div>
 
           </div>
 
 
-        <div  class="mb-12">
+        
 
          
          <div class="mt-12 flex flex-row w-full" v-if="depositAsset">
@@ -59,7 +65,7 @@
 
           </div>
 
-        </div>
+       
 
         <div class="m-4">
           <div v-if="txError">{{txError}}</div>
@@ -72,21 +78,47 @@
 
 
 
-      <div v-if="connectedToWeb3() " >
+      <div v-if="web3Plug.connectedToWeb3() " >
+
+
+          <div class="flex flex-row pt-8 text-white text-md"   >
+
+            <div class="p-4  w-full text-center  ">
+               Moonmoney: {{  web3Plug.rawAmountToFormatted(currentBalances.moonmoney, cryptoAssets.assets['0xBTC']['Decimals'])  }}
+            </div>
+
+            <div class="p-4  w-full text-center relative ">
+
+              <div class="absolute" style="right: 25px; top:-5px"  >
+               
+
+
+              </div>
+
+               
+            </div>
+
+          </div>
+
+
+        <div  class="mb-12"></div>
+
+          
+
+        <div class="mt-12 flex flex-row w-full" v-if="depositAsset">
+              <div @click="approveTokenForMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
+              Withdraw {{depositAsset.name}}
+              </div>
+
+             
+
+
+          </div>
+
+          
 
 
         
-
-
-        <div  class="mb-12">
-
-          
-
-
-          
-
-
-        </div>
 
         <div class="m-4">
           <div v-if="txError">{{txError}}</div>
@@ -149,7 +181,7 @@ export default {
     this.depositAsset.address = contractData['0xbitcoin'].address
    
 
-
+    console.log('this.depositAsset', this.depositAsset)
 
 
     this.refreshBalances()
@@ -166,36 +198,36 @@ export default {
 
    async refreshBalances(){
      console.log('refreshBalances')
-    //  let contractData = Web3Plug.getContractDataForNetworkID(this.providerNetworkID)
-
      
+      let contractData = this.web3Plug.getContractDataForNetworkID(this.web3Plug.getActiveNetId())
+      
+      
+      let zcbtcTokenAddress = contractData["0xbitcoin"].address
+      let moonTokenAddress = contractData["moonmoney"].address
 
-    },
+      
+       this.currentBalances.zxbtc = await this.web3Plug.getTokenBalance(zcbtcTokenAddress, this.web3Plug.getActiveAccountAddress())
+       this.currentBalances.moonmoney = await this.web3Plug.getTokenBalance(moonTokenAddress, this.web3Plug.getActiveAccountAddress())
+
+       console.log(this.currentBalances)
+    },  
 
 
    
  
 
   async  refreshWeb3Accounts(){
-      if ( window.ethereum.selectedAddress) {
-        this.providerNetworkID = await Web3Plug.getProviderNetworkID();
-        this.activeAccountAddress = window.ethereum.selectedAddress
-
-          console.log('this.activeAccountAddress ',this.activeAccountAddress )
-
+      if ( this.web3Plug.connectedToWeb3() ) {
+          
           this.refreshBalances()
       }
 
     },
 
-    connectedToWeb3(){
-      console.log('conn', this.web3Plug.getActiveAccountAddress())
-      return this.web3Plug.getActiveAccountAddress() != null
-    },
-
+   
  
 
-
+/*
     checkNetworkProviderIdValid(){
 
         if(this.providerNetworkID !=  1 )
@@ -206,7 +238,7 @@ export default {
 
  
       return true;
-    },
+    },*/
 
     getEtherscanBaseURL(){
         if(this.providerNetworkID == 42){
@@ -231,9 +263,9 @@ export default {
 
          let tokenAddress = contractData["0xbitcoin"].address
 
-        let web3 = window.web3 
-
-        console.log('wb3', web3)
+         
+         let web3 = this.web3Plug.getWeb3Instance()
+         
 
          var tokenContract =  this.web3Plug.getTokenContract(web3, tokenAddress)
 
