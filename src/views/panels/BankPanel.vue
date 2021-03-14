@@ -2,12 +2,22 @@
 <template>
     <div class="bg-gray-800 px-8 py-2">
 
-      <div>
-      <h3 class="text-lg font-bold   text-white"> The Moonbank </h3>
-     
-      <div class="text-xs      text-gray-300"> Earn interest on your mineable tokens! </div>
 
-     
+      
+
+
+      <div class="flex flex-row">
+        <div class="flex-grow">
+          <h3 class="text-lg font-bold   text-white"> The Moonbank </h3>
+        
+          <div class="text-xs      text-gray-300"> Earn interest on your mineable tokens! </div>
+        </div>
+        <div class="flex-grow text-black  text-center">
+          <div class="w-full bg-yellow-200 rounded">
+                 Moonmoney: {{  getMoonmoneyBalanceFormatted()  }}  🌕
+
+           </div>
+          </div>
 
       </div>
 
@@ -54,9 +64,20 @@
         
 
          
-         <div class="mt-12 flex flex-row w-full" v-if="depositAsset">
+         <div class="mt-12 flex flex-row w-full" v-if="depositAsset && !hasApprovalForDepositToken()">
               <div @click="approveTokenForMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
               Approve {{depositAsset.name}}
+              </div>
+
+             
+
+
+          </div>
+
+
+           <div class="mt-12 flex flex-row w-full" v-if="depositAsset && hasApprovalForDepositToken()">
+              <div  class=" ">
+                <input v-model="tokenAmountToStakeFormatted"> </input> 
               </div>
 
               <div @click="stakeTokenForMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
@@ -85,7 +106,10 @@
           <div class="flex flex-row pt-8 text-white text-md"   >
 
             <div class="p-4  w-full text-center  ">
-               Moonmoney: {{  getMoonmoneyBalance()  }}
+              
+
+
+               Block to Withdraw 0xBTC: {{ getVaultExpirationBlock() }}
             </div>
 
             <div class="p-4  w-full text-center relative ">
@@ -107,7 +131,7 @@
           
 
         <div class="mt-12 flex flex-row w-full" v-if="depositAsset">
-              <div @click="approveTokenForMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
+              <div @click="unstakeTokenFromMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
               Withdraw {{depositAsset.name}}
               </div>
 
@@ -173,6 +197,8 @@ export default {
 
       depositAsset: {},
 
+      tokenAmountToStakeFormatted: 0,
+
       txError: null,
 
       networkProviderIdError: null
@@ -234,7 +260,7 @@ export default {
 
        this.currentAllowances.zxbtc = await this.web3Plug.getTokenAllowance(zcbtcTokenAddress, moonTokenAddress, this.web3Plug.getActiveAccountAddress())
 
-
+      console.log('allowance', this.currentAllowances)
 
 
       let moonMoneyContract = this.web3Plug.getCustomContract(MoonMoneyABI, moonTokenAddress )
@@ -285,6 +311,16 @@ export default {
    getMoonmoneyBalance(){
      return this.web3Plug.rawAmountToFormatted(this.currentBalances.moonmoney, CryptoAssets.assets['MoonMoney']['Decimals'])
    },
+
+   getMoonmoneyBalanceFormatted(){
+      return parseFloat( this.getMoonmoneyBalance() ).toFixed(4)
+   },
+
+
+   hasApprovalForDepositToken(){
+
+     return (this.getApprovedZxBTC() >= this.getExternalZxBTC())
+   },
  
 
 /*
@@ -327,9 +363,11 @@ export default {
          let web3 = this.web3Plug.getWeb3Instance()
          
 
-         var tokenContract =  this.web3Plug.getTokenContract(web3, tokenAddress)
+         var tokenContract =  this.web3Plug.getTokenContract(  tokenAddress)
 
          var moonBankContractAddress = contractData["moonmoney"].address
+
+         console.log( tokenContract )
 
          tokenContract.methods.approve(moonBankContractAddress,amtRaw).send({from: userAddress })
          .then(function(receipt){
@@ -351,7 +389,7 @@ export default {
         async stakeTokenForMoonbank()
         {
          
-       let networkId = this.web3Plug.getActiveNetId()
+         let networkId = this.web3Plug.getActiveNetId()
 
          var userAddress = this.web3Plug.getActiveAccountAddress();
 
@@ -361,25 +399,47 @@ export default {
          let contractData =  this.web3Plug.getContractDataForNetworkID(networkId)
 
          let tokenAddress = contractData["0xbitcoin"].address
+         let moonTokenAddress =  contractData["moonmoney"].address
 
-         var tokenContract = await Web3Plug.getTokenContract(web3,tokenAddress)
+         let moonMoneyContract = this.web3Plug.getCustomContract(MoonMoneyABI, moonTokenAddress )
+        
 
-         var moonBankContractAddress = contractData["moonmoney"].address
-          zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, tokensAmount, minPoolTokens, allowanceTarget, swapTarget, swapData )
-          .send({from: userAddress })
-          .then(function(receipt){
-            console.log(receipt)
-            this.refreshWeb3Accounts()
-              // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-          }.bind(this));
+        let stakeAmountRaw = this.web3Plug.formattedAmountToRaw(this.tokenAmountToStakeFormatted, CryptoAssets.assets['0xBTC']['Decimals'])
 
+        await moonMoneyContract.methods.stakeTokens( stakeAmountRaw ).send({from: userAddress})
 
-
-
+  
         },
 
 
+      async unstakeTokenFromMoonbank()
+        {
+         
+         let networkId = this.web3Plug.getActiveNetId()
+
+         var userAddress = this.web3Plug.getActiveAccountAddress();
+
+         const UnlimitedAmount = 100000000
+         var amtRaw  = this.web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+
+         let contractData =  this.web3Plug.getContractDataForNetworkID(networkId)
+
+         let tokenAddress = contractData["0xbitcoin"].address
+         let moonTokenAddress =  contractData["moonmoney"].address
+
+         let moonMoneyContract = this.web3Plug.getCustomContract(MoonMoneyABI, moonTokenAddress )
+        
  
+        await moonMoneyContract.methods.unstakeTokens(  ).send({from: userAddress})
+
+  
+        },
+
+
+
+      getVaultExpirationBlock(){
+
+      }
 
 
 
