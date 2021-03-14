@@ -29,11 +29,11 @@
 
             <div class="flex flex-col  w-full">
                 <div class="p-4  w-full text-center  ">
-                  External 0xBTC: {{  web3Plug.rawAmountToFormatted(currentBalances.zxbtc, cryptoAssets.assets['0xBTC']['Decimals'])  }}
+                  External 0xBTC: {{ getExternalZxBTC()  }}
                 </div>
 
                 <div class="p-4  w-full text-center  ">
-                  Approved 0xBTC: {{  web3Plug.rawAmountToFormatted(currentBalances.zxbtc, cryptoAssets.assets['0xBTC']['Decimals'])  }}
+                  Approved 0xBTC: {{  getApprovedZxBTC()  }}
                 </div>
             </div>
 
@@ -45,7 +45,7 @@
 
               </div>
 
-               Deposited 0xBTC: {{  web3Plug.rawAmountToFormatted(currentBalances.calcEthFromLP, cryptoAssets.assets['0xBTC']['Decimals'])  }}
+               Deposited 0xBTC: {{ getStakedZxBTC()  }}
             </div>
 
           </div>
@@ -85,7 +85,7 @@
           <div class="flex flex-row pt-8 text-white text-md"   >
 
             <div class="p-4  w-full text-center  ">
-               Moonmoney: {{  web3Plug.rawAmountToFormatted(currentBalances.moonmoney, cryptoAssets.assets['0xBTC']['Decimals'])  }}
+               Moonmoney: {{  getMoonmoneyBalance()  }}
             </div>
 
             <div class="p-4  w-full text-center relative ">
@@ -149,7 +149,7 @@ var BN = Web3.utils.BN;
 
 const CryptoAssets = require('../../config/cryptoassets.json')
 
- 
+ const MoonMoneyABI = require('../../contracts/MoonMoney.json')
 
 import Web3Plug from '../../js/web3-plug.js'
 
@@ -165,7 +165,9 @@ export default {
       providerNetworkID: null,
 
       currentBalances: {} , 
-      cryptoAssets: {}, 
+      currentAllowances: {},
+
+     
 
       depositAsset: {},
 
@@ -176,7 +178,7 @@ export default {
   },
    created: async function()
    {
-     this.cryptoAssets = CryptoAssets;
+     
 
       //this is required because vue cant detect changes otherwise 
      this.web3Plug.getPlugEventEmitter().on('stateChanged', function(connectionState) {
@@ -225,7 +227,22 @@ export default {
        this.currentBalances.zxbtc = await this.web3Plug.getTokenBalance(zcbtcTokenAddress, this.web3Plug.getActiveAccountAddress())
        this.currentBalances.moonmoney = await this.web3Plug.getTokenBalance(moonTokenAddress, this.web3Plug.getActiveAccountAddress())
 
+       this.currentAllowances.zxbtc = await this.web3Plug.getTokenAllowance(zcbtcTokenAddress, moonTokenAddress, this.web3Plug.getActiveAccountAddress())
+
+
+
+
+      let moonMoneyContract = this.web3Plug.getCustomContract(MoonMoneyABI, moonTokenAddress )
+
+
+      this.currentBalances.stakedZxBTC = await moonMoneyContract.methods.getVaultBalance(  this.web3Plug.getActiveAccountAddress() ).call()
+
+
+
+
        console.log(this.currentBalances)
+
+        this.$forceUpdate();
     },  
 
 
@@ -240,7 +257,29 @@ export default {
 
     },
 
+
+    getExternalZxBTC(){
+        return  this.web3Plug.rawAmountToFormatted(this.currentBalances.zxbtc, CryptoAssets.assets['0xBTC']['Decimals'])
+
+  },
+
+     getApprovedZxBTC(){
+        let external =   this.getExternalZxBTC()
+
+        let approval =   this.web3Plug.rawAmountToFormatted(this.currentAllowances.zxbtc, CryptoAssets.assets['0xBTC']['Decimals'])
+
+        return Math.min(external ,  approval) 
+
+  },
+
+  getStakedZxBTC(){
+      return this.web3Plug.rawAmountToFormatted(this.currentBalances.stakedZxBTC,CryptoAssets.assets['0xBTC']['Decimals'])
+  },  
    
+
+   getMoonmoneyBalance(){
+     return this.web3Plug.rawAmountToFormatted(this.currentBalances.moonmoney, CryptoAssets.assets['MoonMoney']['Decimals'])
+   },
  
 
 /*

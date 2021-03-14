@@ -184,7 +184,7 @@ export default class Web3Plug {
   }
 
 
-  getTokenContract(web3,  contractAddress)
+  getTokenContract(   contractAddress)
   { 
 
     console.log('web3Instance', web3Instance)
@@ -194,7 +194,7 @@ export default class Web3Plug {
   }
 
 
-  getCustomContract( web3,  contractABI, contractAddress)
+  getCustomContract(   contractABI, contractAddress)
   { 
     var contract = new web3Instance.eth.Contract(contractABI,contractAddress)
 
@@ -218,6 +218,18 @@ export default class Web3Plug {
     var balance = await tokenContract.methods.balanceOf(ownerAddress).call();
 
     return balance;
+  }
+
+  async getTokenAllowance(tokenAddress, spenderAddress, ownerAddress)
+  {
+    var web3 = new Web3(Web3.givenProvider);
+
+    var tokenContract = new web3.eth.Contract(tokenContractABI, tokenAddress, {});
+
+
+    var allowance = await tokenContract.methods.allowance(ownerAddress, spenderAddress).call();
+
+    return allowance;
   }
 
 
