@@ -16,6 +16,17 @@ export default {
       showResponsiveMenu: false
     }
   },
+
+   mounted: async function()
+  { 
+
+      //this is required because vue cant detect changes otherwise 
+     this.web3Plug.getPlugEventEmitter().on('stateChanged', function(connectionState) {
+        this.$forceUpdate();
+      }.bind(this));
+
+  },
+  
   methods: {
 
     getNetworkName(){

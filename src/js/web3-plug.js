@@ -88,6 +88,8 @@ export default class Web3Plug {
       window.ethereum.on('chainChanged', (chainId) => {
               web3PlugEmitter.emit('stateChanged', this.getConnectionState() )
       });
+
+      web3PlugEmitter.emit('stateChanged', this.getConnectionState() )
     }
 
   }

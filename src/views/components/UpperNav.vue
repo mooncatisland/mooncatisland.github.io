@@ -62,7 +62,7 @@
          />
 
           <span class="  " style="max-width:120px">
-          <a   v-bind:href="getEtherscanBaseURL()+'/address/'+activeAccountAddress" class="text-gray-800  "   target="_blank">  {{activeAccountAddress}} </a>
+          <a   v-bind:href="getEtherscanBaseURL()+'/address/'+web3Plug.getActiveNetId()" class="text-gray-800  "   target="_blank">  {{web3Plug.getActiveNetId()}} </a>
          </span>
          </div>
       </div>
@@ -101,6 +101,8 @@ export default {
 
           this.activeAccountAddress = connectionState.activeAccountAddress
           this.activeNetworkId = connectionState.activeNetworkId
+
+           this.$forceUpdate();
 
         }.bind(this));
 

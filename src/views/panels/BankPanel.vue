@@ -18,12 +18,13 @@
       </div>
 
 
+    
 
 
+      <div v-if=" web3Plug.connectedToWeb3()  " >
 
-      <div v-if="web3Plug.connectedToWeb3() " >
-
-
+          
+          
           <div class="flex flex-row pt-8 text-white text-md"   >
 
             <div class="flex flex-col  w-full">
@@ -78,7 +79,7 @@
 
 
 
-      <div v-if="web3Plug.connectedToWeb3() " >
+      <div v-if=" web3Plug.connectedToWeb3() " >
 
 
           <div class="flex flex-row pt-8 text-white text-md"   >
@@ -158,11 +159,13 @@ export default {
   components:{  },
   data() {
     return {
+      connectedToWeb3: false,
+
      // activeAccountAddress: null,
       providerNetworkID: null,
 
       currentBalances: {} , 
-      cryptoAssets: CryptoAssets, 
+      cryptoAssets: {}, 
 
       depositAsset: {},
 
@@ -171,8 +174,14 @@ export default {
       networkProviderIdError: null
     }
   },
- async  mounted()
-  {
+   created: async function()
+   {
+     this.cryptoAssets = CryptoAssets;
+
+      //this is required because vue cant detect changes otherwise 
+     this.web3Plug.getPlugEventEmitter().on('stateChanged', function(connectionState) {
+        this.$forceUpdate();
+      }.bind(this));
 
      let contractData = this.web3Plug.getContractDataForNetworkID( this.web3Plug.getActiveNetId() )
 
@@ -182,11 +191,18 @@ export default {
    
 
     console.log('this.depositAsset', this.depositAsset)
+    
+   },
+  mounted: async function()
+  { 
+   
+  
 
-
-    this.refreshBalances()
+    await this.refreshBalances()
     setInterval(this.refreshBalances, 10*1000);
- 
+
+    //this is required due to using the formatting method 
+     this.$forceUpdate();
   },
   updated()
   {
