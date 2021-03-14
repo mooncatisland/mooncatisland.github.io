@@ -150,6 +150,8 @@ var BN = Web3.utils.BN;
 const CryptoAssets = require('../../config/cryptoassets.json')
 
  const MoonMoneyABI = require('../../contracts/MoonMoney.json')
+const axios = require('axios')
+
 
 import Web3Plug from '../../js/web3-plug.js'
 
@@ -182,7 +184,8 @@ export default {
 
       //this is required because vue cant detect changes otherwise 
      this.web3Plug.getPlugEventEmitter().on('stateChanged', function(connectionState) {
-        this.$forceUpdate();
+        this.refreshBalances()
+        
       }.bind(this));
 
      let contractData = this.web3Plug.getContractDataForNetworkID( this.web3Plug.getActiveNetId() )
@@ -195,10 +198,12 @@ export default {
     console.log('this.depositAsset', this.depositAsset)
     
    },
+
+ 
   mounted: async function()
   { 
-   
-  
+      
+
 
     await this.refreshBalances()
     setInterval(this.refreshBalances, 10*1000);
