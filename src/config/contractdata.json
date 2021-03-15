@@ -24,6 +24,22 @@
 
 
   },
+
+  "goerli":{
+    "contracts":{
+      "0xbitcoin":{"address":"0xAB89a7742CB10E7BcE98540fd05C7D731839cf9F"},
+
+      "mooncatrescue":{"address":""},
+
+      "moonmoney":{"address":"0x2989daade11d80d2e19635e5b8c35403f90a5816"},
+
+      "moontoys":{"address":"0xf93bba6e963917a7513afd143c607961988621ad"} 
+ 
+    }
+
+
+  },
+
   "matic":{
     "contracts":{
        

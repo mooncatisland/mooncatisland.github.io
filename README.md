@@ -9,6 +9,8 @@
 4. Toys tab will show you all of your toys (how to get this data..?)
 
 
+-Generate cat stats based on ID  (Strength, Charisma, Intelligence, Wisdom, Dexterity, Initiative)
+-Use mongo to serve a text-based RPG 
 
 
 ## Docs

@@ -17,6 +17,12 @@
                  Moonmoney: {{  getMoonmoneyBalanceFormatted()  }}  🌕
 
            </div>
+                 <div class="w-full bg-gray-900 text-orange-500  rounded">
+                 Staked 0xBTC: {{ getStakedZxBTC()  }}  ⛏️ 
+
+           </div>
+
+          
           </div>
 
       </div>
@@ -43,7 +49,7 @@
                 </div>
 
                 <div class="p-4  w-full text-center  ">
-                  Approved 0xBTC: {{  getApprovedZxBTC()  }}
+                  
                 </div>
             </div>
 
@@ -54,8 +60,8 @@
 
 
               </div>
-
-               Deposited 0xBTC: {{ getStakedZxBTC()  }}
+                 Approved 0xBTC: {{  getApprovedZxBTC()  }}
+              
             </div>
 
           </div>
@@ -76,8 +82,8 @@
 
 
            <div class="mt-12 flex flex-row w-full" v-if="depositAsset && hasApprovalForDepositToken()">
-              <div  class=" ">
-                <input v-model="tokenAmountToStakeFormatted"> </input> 
+              <div  class=" flex-grow p-4">
+                <input v-model="tokenAmountToStakeFormatted" class="w-full p-4    "> </input> 
               </div>
 
               <div @click="stakeTokenForMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
@@ -98,28 +104,27 @@
 
       </div>
 
-
+        <hr> 
 
       <div v-if=" web3Plug.connectedToWeb3() " >
+            <p class="text-gray-200 p-8 m-2 text-sm ">
+              The vaultlock expires in {{ getExpectedVaultExpirationTime() }} blocks.  After the vaultlock has expired, you can restake the tokens for MoonMoney or withdraw them.
 
+              </p>
 
           <div class="flex flex-row pt-8 text-white text-md"   >
 
             <div class="p-4  w-full text-center  ">
-              
+               
+               Vaultlock Expiration Block: {{ getVaultExpirationBlock() }}
 
 
-               Block to Withdraw 0xBTC: {{ getVaultExpirationBlock() }}
             </div>
 
             <div class="p-4  w-full text-center relative ">
 
-              <div class="absolute" style="right: 25px; top:-5px"  >
-               
-
-
-              </div>
-
+                
+                Blocks until Expiry: {{ getVaultExpirationTime() }}
                
             </div>
 
@@ -131,10 +136,21 @@
           
 
         <div class="mt-12 flex flex-row w-full" v-if="depositAsset">
-              <div @click="unstakeTokenFromMoonbank" class="flex-grow cursor-pointer bg-green-400 hover:bg-green-500 border-2 border-gray-300 p-4 m-4 text-center text-gray-100 font-bold">
-              Withdraw {{depositAsset.name}}
+              
+              <div @click="restakeTokenForMoonbank" 
+              class="flex-grow cursor-pointer  border-2 border-gray-300 p-4 m-4 text-center text-gray-800 font-bold"
+              :class="{'bg-gray-700 hover:bg-gray-500  text-red-300':  !getVaultIsUnlocked(), 'bg-green-400 hover:bg-green-500':  getVaultIsUnlocked()  }"
+              >
+             
+              Restake Locked {{depositAsset.name}}
               </div>
 
+             <div @click="unstakeTokenFromMoonbank" 
+            class="flex-grow cursor-pointer  border-2 border-gray-300 p-4 m-4 text-center text-gray-800 font-bold"
+              :class="{'bg-gray-700 hover:bg-gray-500 text-red-300':  !getVaultIsUnlocked(), 'bg-green-400 hover:bg-green-500':  getVaultIsUnlocked()  }"
+              >
+              Withdraw {{depositAsset.name}}
+              </div>
              
 
 
@@ -193,9 +209,12 @@ export default {
       currentBalances: {} , 
       currentAllowances: {},
 
-     
+      vaultExpirationBlock: 0,
+      networkBlockNumber: 0,
 
       depositAsset: {},
+
+      minimumVaultStakeTime: 0,
 
       tokenAmountToStakeFormatted: 0,
 
@@ -247,6 +266,15 @@ export default {
 
    async refreshBalances(){
      console.log('refreshBalances')
+
+
+      this.networkBlockNumber = await this.web3Plug.getWeb3Instance().eth.getBlockNumber();
+
+
+
+          var userAddress = this.web3Plug.getActiveAccountAddress(); 
+
+
      
       let contractData = this.web3Plug.getContractDataForNetworkID(this.web3Plug.getActiveNetId())
       
@@ -260,7 +288,7 @@ export default {
 
        this.currentAllowances.zxbtc = await this.web3Plug.getTokenAllowance(zcbtcTokenAddress, moonTokenAddress, this.web3Plug.getActiveAccountAddress())
 
-      console.log('allowance', this.currentAllowances)
+       console.log('allowance', this.currentAllowances)
 
 
       let moonMoneyContract = this.web3Plug.getCustomContract(MoonMoneyABI, moonTokenAddress )
@@ -268,7 +296,11 @@ export default {
 
       this.currentBalances.stakedZxBTC = await moonMoneyContract.methods.getVaultBalance(  this.web3Plug.getActiveAccountAddress() ).call()
 
-
+ 
+ 
+       this.vaultExpirationBlock =  await moonMoneyContract.methods.getVaultExpiration( this.web3Plug.getActiveAccountAddress() ).call({from: userAddress})
+        this.minimumVaultStakeTime = await moonMoneyContract.methods.MinStakingTimeBlocks(   ).call({from: userAddress})
+ 
 
 
        console.log(this.currentBalances)
@@ -411,6 +443,27 @@ export default {
   
         },
 
+      async restakeTokenForMoonbank(){
+
+         let networkId = this.web3Plug.getActiveNetId()
+
+         var userAddress = this.web3Plug.getActiveAccountAddress();
+
+         const UnlimitedAmount = 100000000
+         var amtRaw  = this.web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+
+         let contractData =  this.web3Plug.getContractDataForNetworkID(networkId)
+
+         let tokenAddress = contractData["0xbitcoin"].address
+         let moonTokenAddress =  contractData["moonmoney"].address
+
+         let moonMoneyContract = this.web3Plug.getCustomContract(MoonMoneyABI, moonTokenAddress )
+        
+ 
+        await moonMoneyContract.methods.restakeTokens(  ).send({from: userAddress})
+
+
+      },  
 
       async unstakeTokenFromMoonbank()
         {
@@ -439,7 +492,36 @@ export default {
 
       getVaultExpirationBlock(){
 
+            return this.vaultExpirationBlock
+
+
+      },  
+
+      getVaultExpirationTime(){
+  
+          return Math.max( this.vaultExpirationBlock - this.networkBlockNumber , 0   )
+        
+      },
+
+        getExpectedVaultExpirationTime(){
+
+          if( this.getStakedZxBTC() == 0){
+
+            return this.minimumVaultStakeTime
+          }
+
+  
+          return Math.max( this.vaultExpirationBlock - this.networkBlockNumber , 0   )
+        
+      },
+
+
+
+      getVaultIsUnlocked(){
+        return (this.getVaultExpirationTime() <= 0 )
+
       }
+
 
 
 
