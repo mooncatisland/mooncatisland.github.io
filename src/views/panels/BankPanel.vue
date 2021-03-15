@@ -272,7 +272,7 @@ export default {
 
 
 
-          var userAddress = this.web3Plug.getActiveAccountAddress(); 
+      var userAddress = this.web3Plug.getActiveAccountAddress(); 
 
 
      
