@@ -71,7 +71,8 @@ var web3Instance = null
   let networkIds = {
     'mainnet':1,
     'goerli':5,
-    'kovan':42 
+    'kovan':42,
+    'matic':137,
   }
 
 
@@ -110,7 +111,10 @@ export default class Web3Plug {
 
          web3Instance = window.web3 
 
+
+        
          window.ethereum.enable();
+         console.log('meep', window.web3.currentProvider.host )
 
          window.ethereum.on('accountsChanged', (accounts) => {
                   web3PlugEmitter.emit('stateChanged', this.getConnectionState() )
@@ -129,7 +133,16 @@ export default class Web3Plug {
   }
 
   async requestAddMaticNetwork(){
-    let req = await window.ethereum.request({ method: 'wallet_addEthereumChain',params: {"chainId": "0x5","chainName": "Goerli"}  }); 
+
+    
+    let req = await window.ethereum.request({ 
+      method: 'wallet_addEthereumChain',
+      params:[ {
+        "chainId": "0x89",
+      "chainName": "Matic Mainnet",
+      "rpcUrls":["https://rpc-mainnet.maticvigil.com"]
+    
+    } ] }); 
     console.log('req',req)
     
   }
