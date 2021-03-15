@@ -13,6 +13,12 @@
       
     </ul>
 
+
+    <h3 class="text-lg font-bold inline  "> How does it work? </h3>
+    <p> Mooncat Island lets you play with your fuzzy friend while they sit cozy in Ethereum Mainnet! </p>
+
+    <p> Even though your Mooncats will stay in Mainnet, Mooncat Island runs on Matic Sidechain. </p>
+
   </div>
 </template>
 

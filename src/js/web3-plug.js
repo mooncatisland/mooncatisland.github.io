@@ -79,6 +79,9 @@ export default class Web3Plug {
 
   async reconnectWeb(){
     if (window.ethereum) {
+
+     
+
       window.web3 = new Web3(window.ethereum);
       web3Instance = window.web3
 
@@ -100,6 +103,9 @@ export default class Web3Plug {
     console.log('connectWeb3')
 
     if (window.ethereum) {
+
+ 
+
          window.web3 = new Web3(window.ethereum);
 
          web3Instance = window.web3 
@@ -121,6 +127,13 @@ export default class Web3Plug {
         web3PlugEmitter.emit('error', "No web3 provider found." )
       }
   }
+
+  async requestAddMaticNetwork(){
+    let req = await window.ethereum.request({ method: 'wallet_addEthereumChain',params: {"chainId": "0x5","chainName": "Goerli"}  }); 
+    console.log('req',req)
+    
+  }
+
 
   connectedToWeb3(){
 

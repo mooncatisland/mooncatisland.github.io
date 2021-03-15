@@ -1,36 +1,27 @@
 <template>
   <div class="bg-gray-800 px-8 py-2">
      
-       <h3 class="text-lg font-bold inline text-white "> Mooncat Island Space Program </h3>
-
-      <div v-if="ownedCats.length == 0 " v-cloak>
-        
-      </div>
-
-
+       
 
        <div class="flex flex-row">
         <div class="flex-grow">
-          <h3 class="text-lg font-bold   text-white"> The Moonbank </h3>
+          <h3 class="text-lg font-bold   text-white"> Mooncat Island Space Program </h3>
         
-          <div class="text-xs      text-gray-300"> Earn interest on your mineable tokens! </div>
+          <div class="text-xs      text-gray-300"> Search the depths of space for fun cat toys! </div>
         </div>
         <div class="flex-grow text-black  text-center">
           <div class="w-full bg-yellow-200 rounded">
                  Moonmoney: {{  getMoonmoneyBalanceFormatted()  }}  🌕
 
            </div>
-                 <div class="w-full bg-gray-900 text-orange-500  rounded">
-                 Staked 0xBTC: {{ getStakedZxBTC()  }}  ⛏️ 
-
-           </div>
+                  
 
           
           </div>
 
       </div>
 
-      
+
 
 
     
@@ -45,6 +36,11 @@ import MoonCatTools from '../../js/moon-cat-tools.js'
 import CatIndex from './subcomponents/CatIndex.vue'
 import CatProfile from './subcomponents/CatProfile.vue'
 
+const CryptoAssets = require('../../config/cryptoassets.json')
+
+
+ const MoonMoneyABI = require('../../contracts/MoonMoney.json')
+ 
 let moonCatTools = new MoonCatTools()
 
 export default {
@@ -53,88 +49,82 @@ export default {
   components:{CatIndex,CatProfile},
   data() {
     return {
-      ownedCats: [] ,
-      selectedCat: undefined
+      currentBalances: {}  
     }
   },
   created: async function(){
 
        this.web3Plug.getPlugEventEmitter().on('stateChanged', async function(connectionState) {
-        await this.loadCatsForAddress( this.web3Plug.getActiveAccountAddress() )
+        
         
       }.bind(this));
 
-      await this.loadCatsForAddress( this.web3Plug.getActiveAccountAddress() )
+      
      
 
   },
-  mounted(){
+  mounted: async function(){
 
+    await this.refreshBalances()
+    setInterval(this.refreshBalances, 10*1000);
+
+    //this is required due to using the formatting method 
+     this.$forceUpdate();
 
   },
   methods: {
-      async loadCatsForAddress(userAddress){
-          console.log('load cats for ', userAddress)
 
-         this.ownedCats = [] 
+     async refreshBalances(){
+      console.log('refreshBalances')
 
-        let catsarray = await new Promise ((resolve, reject) => {
-             
 
-          axios.post('https://api.thegraph.com/subgraphs/name/tibike6/mooncatrescue', {
-                  query: `
-                  {
-                    owners(where:{id:"`+userAddress+`"}) {
-                      id
-                      cats {
-                        id
-                      }
-                    
-                    }
-                  }  
-                  `
-                })
-                .then((res) => {
-                  
-                    console.log(res.data)
+      this.networkBlockNumber = await this.web3Plug.getWeb3Instance().eth.getBlockNumber();
 
-                    let results = res.data
-
-                    let owner = results.data.owners[0]
-
-                    if(!owner)return 
  
-                  
-                    resolve(owner.cats)
-                })
-                .catch((error) => {
-                  console.error(error)
-                  reject(error)
-                })
 
+        var userAddress = this.web3Plug.getActiveAccountAddress(); 
 
-
-
-          })
-
-        this.ownedCats = catsarray 
-            console.log('cats are', this.ownedCats)
-
-
-
-      },
+ 
+       let contractData = this.web3Plug.getContractDataForNetworkID(this.web3Plug.getActiveNetId())
+      
+      
+       
+      let moonTokenAddress = contractData["moonmoney"].address
 
       
+       this.currentBalances.moonmoney = await this.web3Plug.getTokenBalance(moonTokenAddress, this.web3Plug.getActiveAccountAddress())
 
-          clickedCat(id){ 
+      
+       console.log('allowance', this.currentAllowances)
 
-            this.selectedCat = id; 
-            
-          },
 
-          catIsSelected(){
-            return (typeof(this.selectedCat) != 'undefined' )
-          }
+        let moonMoneyContract = this.web3Plug.getCustomContract(MoonMoneyABI, moonTokenAddress )
+ 
+       console.log(this.currentBalances)
+
+        this.$forceUpdate();
+    },  
+
+          
+      getMoonmoneyBalance(){
+        return this.web3Plug.rawAmountToFormatted(this.currentBalances.moonmoney, CryptoAssets.assets['MoonMoney']['Decimals'])
+      },
+
+      getMoonmoneyBalanceFormatted(){
+          return parseFloat( this.getMoonmoneyBalance() ).toFixed(4)
+      },
+
+  
+
+      clickedCat(id){ 
+
+        this.selectedCat = id; 
+        
+      },
+
+      catIsSelected(){
+        return (typeof(this.selectedCat) != 'undefined' )
+      }
 
 
         
