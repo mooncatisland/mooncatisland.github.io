@@ -5,7 +5,7 @@ import router from './router'
 
 
 
-import '@fortawesome/fontawesome-free/js/all.js';
+import './css/saturn.css';
 import './css/main.css'
 import './css/normalize.css'
 import './css/webflow.css'

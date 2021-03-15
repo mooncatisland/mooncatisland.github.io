@@ -60,12 +60,42 @@
       </div>
 
 
-       <div v-if="!scanningDetails.active"> 
+       <div v-if="!scanningDetails.scanActive"> 
         <div class="w-full text-center">
           <div @click="startScanning()" class="bg-green-400 text-white inline rounded p-2 cursor-pointer select-none"> Scan for Moon Toys </div>
         </div>
 
+         <div v-if="scanningDetails.output" class="my-4"> 
+              <div> Output results of scan: {{scanningDetails.output}} </div>
+
+              <div> <div @click="claimMoontoy()" class="bg-purple-400 rounded p-2 m-2 text-white cursor-pointer"> Claim MoonToy </div>  </div>
+        </div>
+
       </div>
+
+         <div v-if="scanningDetails.scanActive"> 
+           <div>
+            <div id="saturn">
+              <div class="planet bottom planet-bg"></div>
+              <div class="rings"></div>
+              <div class="planet top planet-bg"></div>
+            </div>
+           </div>
+
+          <div class="text-green-400 text-center w-full"> {{scanningDetails.simulatedHash}} </div>
+
+
+           <div class="text-green-400 text-center w-full"> Scanning space for signs of Moon Toys... </div>
+          <div class="text-green-400 text-center w-full"> {{scanningDetails.scanTimeElapsed / 1000}} </div>
+
+ 
+
+      </div>
+
+      
+
+
+
 
   
     </div>
@@ -133,6 +163,9 @@ export default {
 
     await this.refreshBalances()
     setInterval(this.refreshBalances, 10*1000);
+
+
+    setInterval( this.updateScan, 100 );
 
     //this is required due to using the formatting method 
      this.$forceUpdate();
@@ -337,8 +370,30 @@ export default {
 
        
         //when this finds a good number, set scanningComplete to finished , allow user to either scan again or submit the claim to end the program 
-      }
+      },
 
+      claimMoontoy(){
+
+        //web3 stuff 
+      },
+      
+      updateScan(){
+        if(!this.scanningDetails.scanActive) return; 
+
+        this.scanningDetails.simulatedHash = this.genHexString(32) 
+
+        this.scanningDetails.scanTimeElapsed = parseInt(Date.now()) - parseInt(this.scanningDetails.scanStartTime)
+         
+         this.$forceUpdate();
+      },
+
+      genHexString(len) {
+          let output = '';
+          for (let i = 0; i < len; ++i) {
+              output += (Math.floor(Math.random() * 16)).toString(16);
+          }
+          return output;
+      }
 
 
   }
