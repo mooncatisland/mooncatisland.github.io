@@ -90,7 +90,13 @@ const CryptoAssets = require('../../config/cryptoassets.json')
 
  const MoonMoneyABI = require('../../contracts/MoonMoney.json')
 const MoonToysABI = require('../../contracts/MoonToys.json')
+
+
+import Miner from '../../js/spacelaunch/miner.js'
  
+var os = require('os')
+
+
 let moonCatTools = new MoonCatTools()
 
 export default {
@@ -104,8 +110,9 @@ export default {
       spaceProgramBlocks: 500,
       spaceProgramCost: 100,
       spaceProgramDetails: { },
-      scanningDetails: {},
-      networkBlockNumber: null
+      scanningDetails: {scanActive:false},
+      networkBlockNumber: null,
+      scanningMiner: null 
     }
   },
   created: async function(){
@@ -114,6 +121,9 @@ export default {
         
         
       }.bind(this));
+
+
+      this.scanningDetails.cpucores =  os.cpus().length;
 
       
      
@@ -299,10 +309,33 @@ export default {
       },
 
         
-      startScanning(){
-        console.log('start scanning')
+      async startScanning(){
+       
+
+        this.scanningDetails.scanActive = true 
+        this.scanningDetails.scanStartTime = Date.now()
+
+         console.log('start scanning', this.scanningDetails)
+
+        let searchseed = this.spaceProgramDetails.spaceProgramChallenge
+
+        this.scanningMiner = new Miner(searchseed)
 
 
+        let output = await new Promise((resolve, reject) => {
+          this.scanningMiner.mine(1, function(result){
+             
+            resolve(result)
+          })
+        })
+        
+          this.scanningDetails.scanActive = false
+          this.scanningDetails.output = output 
+
+           console.log('results of mining', output )
+ 
+
+       
         //when this finds a good number, set scanningComplete to finished , allow user to either scan again or submit the claim to end the program 
       }
 
