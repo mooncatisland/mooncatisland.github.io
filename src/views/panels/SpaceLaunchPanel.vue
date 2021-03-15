@@ -3,7 +3,7 @@
      
        
 
-       <div class="flex flex-row">
+       <div class="flex flex-row mb-8">
         <div class="flex-grow">
           <h3 class="text-lg font-bold   text-white"> Mooncat Island Space Program </h3>
         
@@ -20,9 +20,22 @@
           </div>
 
       </div>
+  <hr> 
+   <div class="flex flex-col my-8 "  >
 
+    <div> 
+      <div class="text-xl text-green-400">No Space Program Found</div>
+      <p class="text-gray-200 text-sm"> In order to find new Moontoys for your cats, you have to search for them during a Space Program. </p>
+       <p class="text-gray-200 text-sm"> A Space Program lasts for a period of {{spaceProgramBlocks}} blocks. During this time, you can scan for new toys.  You must claim a toy before the Space Program is over or else the mission is a failure. </p>
+       
+       <div class="flex flex-row mt-8  "  >
+         <div class="flex-grow  text-green-400">Space Program Cost: <span class="text-white">{{spaceProgramCost}}</span> 🌕 </div>
+          <div class="flex-grow">  <div class="bg-green-400 hover:bg-green-700 text-black p-2 rounded inline cursor-pointer"> Start a Space Program </div>   </div>
+       </div>
 
+     </div>
 
+     </div>
 
     
   </div>
@@ -49,7 +62,9 @@ export default {
   components:{CatIndex,CatProfile},
   data() {
     return {
-      currentBalances: {}  
+      currentBalances: {}  ,
+      spaceProgramBlocks: 500,
+      spaceProgramCost: 100,
     }
   },
   created: async function(){
