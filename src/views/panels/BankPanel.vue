@@ -39,6 +39,10 @@
 
       <div v-if=" web3Plug.connectedToWeb3()  " >
 
+             <p class="text-gray-200 p-8 m-2 text-sm ">
+              When you deposit your 0xBTC in the MoonMoney smart contract, you immediately earn 1 MoonMoney for each deposited 0xBTC.  Your 0xBTC is then locked safely inside of the smart contract until {{ getExpectedVaultExpirationTime() }} blocks have passed.  Then, you can take it out and do it all over again!
+              </p>
+
           
           
           <div class="flex flex-row pt-8 text-white text-md"   >
@@ -108,7 +112,7 @@
 
       <div v-if=" web3Plug.connectedToWeb3() " >
             <p class="text-gray-200 p-8 m-2 text-sm ">
-              The vaultlock expires in {{ getExpectedVaultExpirationTime() }} blocks.  After the vaultlock has expired, you can restake the tokens for MoonMoney or withdraw them.
+              The vaultlock expires in {{ getExpectedVaultExpirationTime() }} blocks.  After the vaultlock has expired, you can restake the tokens for more MoonMoney or withdraw them.
 
               </p>
 
