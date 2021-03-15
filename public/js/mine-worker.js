@@ -44,7 +44,9 @@ function mine(){
     var time = Math.floor(rawTime);
     var khs = count/rawTime/1000;
     var catId = "0x00" + hash.slice(-8);
-    return ["0x" + seedHex, catId, time, hash, khs +" Kh/s"];
+
+    return {seed: "0x" + seedHex, id: catId, time: time, hash: hash, rate: khs+" Kh/s"}
+   // return ["0x" + seedHex, catId, time, hash, khs +" Kh/s"];
 }
 
 onmessage = function(e){

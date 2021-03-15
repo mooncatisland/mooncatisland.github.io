@@ -65,8 +65,11 @@
           <div @click="startScanning()" class="bg-green-400 text-white inline rounded p-2 cursor-pointer select-none"> Scan for Moon Toys </div>
         </div>
 
-         <div v-if="scanningDetails.output" class="my-4"> 
-              <div> Output results of scan: {{scanningDetails.output}} </div>
+         <div v-if="scanningDetails.output" class="my-4 text-white text-center"> 
+              <div> Scan completed in: {{scanningDetails.output.time}}s, {{scanningDetails.output.rate}} </div>
+
+                <div> Seed: {{scanningDetails.output.seed}} </div>
+                <div> Id: {{scanningDetails.output.id}} </div>
 
               <div> <div @click="claimMoontoy()" class="bg-purple-400 rounded p-2 m-2 text-white cursor-pointer"> Claim MoonToy </div>  </div>
         </div>
@@ -283,9 +286,7 @@ export default {
 
          var userAddress = this.web3Plug.getActiveAccountAddress();
 
-         const UnlimitedAmount = 100000000
-         var amtRaw  = this.web3Plug.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
-
+        
          let contractData =  this.web3Plug.getContractDataForNetworkID(networkId)
 
          
@@ -295,8 +296,7 @@ export default {
          let moonToysContract = this.web3Plug.getCustomContract(MoonToysABI, moonToysAddress )
 
 
-         let stakeAmountRaw = this.web3Plug.formattedAmountToRaw(this.tokenAmountToStakeFormatted, CryptoAssets.assets['0xBTC']['Decimals'])
-
+         
          await moonToysContract.methods.startSpaceProgram(   ).send({from: userAddress})
 
 
@@ -354,9 +354,10 @@ export default {
 
         this.scanningMiner = new Miner(searchseed)
 
+        let CORECOUNT = 2 
 
         let output = await new Promise((resolve, reject) => {
-          this.scanningMiner.mine(1, function(result){
+          this.scanningMiner.mine(CORECOUNT, function(result){
              
             resolve(result)
           })
@@ -372,7 +373,27 @@ export default {
         //when this finds a good number, set scanningComplete to finished , allow user to either scan again or submit the claim to end the program 
       },
 
-      claimMoontoy(){
+      async claimMoontoy(){
+
+        let claimSeed = this.scanningDetails.output.seed
+
+          let networkId = this.web3Plug.getActiveNetId()
+
+         var userAddress = this.web3Plug.getActiveAccountAddress();
+
+        
+         let contractData =  this.web3Plug.getContractDataForNetworkID(networkId)
+
+         
+         let moonToysAddress = contractData["moontoys"].address
+
+
+         let moonToysContract = this.web3Plug.getCustomContract(MoonToysABI, moonToysAddress )
+
+
+         
+         await moonToysContract.methods.findNewToy( claimSeed  ).send({from: userAddress})
+
 
         //web3 stuff 
       },
