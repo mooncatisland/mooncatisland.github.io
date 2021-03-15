@@ -348,9 +348,11 @@ export default {
         this.scanningDetails.scanActive = true 
         this.scanningDetails.scanStartTime = Date.now()
 
-         console.log('start scanning', this.scanningDetails)
+         
 
         let searchseed = this.spaceProgramDetails.spaceProgramChallenge
+
+        console.log('start scanning', this.scanningDetails,searchseed)
 
         this.scanningMiner = new Miner(searchseed)
 
