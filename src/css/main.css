@@ -14,7 +14,12 @@
   100% { transform: rotate(360deg); }
 }
 
-
+.pixelfriendly{
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 
 .mining-animation{
     animation: semispin 0.4s linear infinite;

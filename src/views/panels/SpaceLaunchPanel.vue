@@ -23,6 +23,12 @@
   <hr> 
    <div class="flex flex-col my-8 "  >
 
+     <CatToyImage
+     v-if="false"
+      v-bind:renderSize="64"
+      v-bind:iconId="9"
+      />
+
     <div v-if="!spaceProgramDetails.active"> 
       <div class="text-xl text-green-400">No Space Program Found</div>
       <p class="text-gray-200 text-sm"> In order to find new Moontoys for your cats, you have to search for them during a Space Program. </p>
@@ -118,6 +124,8 @@ import MoonCatTools from '../../js/moon-cat-tools.js'
 import CatIndex from './subcomponents/CatIndex.vue'
 import CatProfile from './subcomponents/CatProfile.vue'
 
+import CatToyImage from './subcomponents/CatToyImage.vue'
+
 const CryptoAssets = require('../../config/cryptoassets.json')
 
 
@@ -135,7 +143,7 @@ let moonCatTools = new MoonCatTools()
 export default {
   name: 'CatsPanel',
   props: ['web3Plug'],
-  components:{CatIndex,CatProfile},
+  components:{CatIndex,CatProfile,CatToyImage},
   data() {
     return {
       currentBalances: {}  ,
