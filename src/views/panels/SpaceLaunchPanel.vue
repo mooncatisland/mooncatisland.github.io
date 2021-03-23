@@ -23,11 +23,7 @@
   <hr> 
    <div class="flex flex-col my-8 "  >
 
-     <CatToyImage
-     v-if="false"
-      v-bind:renderSize="64"
-      v-bind:iconId="9"
-      />
+    
 
     <div v-if="!spaceProgramDetails.active"> 
       <div class="text-xl text-green-400">No Space Program Found</div>
@@ -67,8 +63,12 @@
 
 
        <div v-if="!scanningDetails.scanActive"> 
-        <div class="w-full text-center">
+        <div class="w-full text-center" v-if="!scanningDetails.output" >
           <div @click="startScanning()" class="bg-green-400 text-white inline rounded p-2 cursor-pointer select-none"> Scan for Moon Toys </div>
+        </div>
+
+        <div class="w-full text-center" v-if="scanningDetails.output" >
+          <div @click="startScanning()" class="bg-green-400 text-white inline rounded p-2 cursor-pointer select-none"> Scan for Another Moon Toy </div>
         </div>
 
          <div v-if="scanningDetails.output" class="my-4 text-white text-center"> 
@@ -76,6 +76,14 @@
 
                 <div> Seed: {{scanningDetails.output.seed}} </div>
                 <div> Id: {{scanningDetails.output.id}} </div>
+
+              <div>
+               <CatToyImage
+             
+              v-bind:renderSize="64"
+              v-bind:iconId="9"
+              /> </div>
+
 
               <div> <div @click="claimMoontoy()" class="bg-purple-400 rounded p-2 m-2 text-white cursor-pointer"> Claim MoonToy </div>  </div>
         </div>
