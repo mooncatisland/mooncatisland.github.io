@@ -37,6 +37,8 @@ import MoonCatTools from '../../js/moon-cat-tools.js'
 import CatIndex from './subcomponents/CatIndex.vue'
 import CatProfile from './subcomponents/CatProfile.vue'
 
+import TheGraphHelper from '../../js/thegraph-helper.js'
+
 let moonCatTools = new MoonCatTools()
 
 export default {
@@ -68,49 +70,10 @@ export default {
       async loadCatsForAddress(userAddress){
           console.log('load cats for ', userAddress)
 
-         this.ownedCats = [] 
+         this.ownedCats = await TheGraphHelper.findMooncatsOwnedBy(userAddress)
 
-        let catsarray = await new Promise ((resolve, reject) => {
-             
-
-          axios.post('https://api.thegraph.com/subgraphs/name/tibike6/mooncatrescue', {
-                  query: `
-                  {
-                    owners(where:{id:"`+userAddress+`"}) {
-                      id
-                      cats {
-                        id
-                      }
-                    
-                    }
-                  }  
-                  `
-                })
-                .then((res) => {
-                  
-                    console.log(res.data)
-
-                    let results = res.data
-
-                    let owner = results.data.owners[0]
-
-                    if(!owner)return 
- 
-                  
-                    resolve(owner.cats)
-                })
-                .catch((error) => {
-                  console.error(error)
-                  reject(error)
-                })
-
-
-
-
-          })
-
-        this.ownedCats = catsarray 
-            console.log('cats are', this.ownedCats)
+        
+         console.log('cats are', this.ownedCats)
 
 
 

@@ -1,36 +1,73 @@
 
-const Axios = require('axios');
-
+ 
+import axios from 'axios'
 
 export default class TheGraphHelper {
 
+ 
 
-    static async queryGraphData( ){
+    static async findMooncatsOwnedBy(publicAddress)
+    {
+         publicAddress = publicAddress.toLowerCase()
+   
+          let graphURL = "https://api.thegraph.com/subgraphs/name/rentft/moon-cat-rescue"
+  
+          let queryString = `
+                          {
+                    
+                            owners(where:{id:"`+publicAddress+`"}) {
+                              id,
+                              cats {
+                                id,
+                                isWrapped
+                              }
+                              
+                            }
+                          }
+                      `        
+                             
+  
+                          
+        let result = await TheGraphHelper.resolveGraphQuery(graphURL , queryString  )
+  
+        console.log('graph', result)
 
-      let baseurl = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
+        if( result.data.owners.length > 0){
+          let catTokens =  result.data.owners[0].cats
+  
+          return catTokens.map(x => ({id: x.id, needsWrap: !x.isWrapped}))
+     
+        }
 
-      let querystring = "{uniswapFactories(first:5){id pairCount totalVolumeUSD} tokens(first:5){id symbol name}"
-
-      return new Promise(   (resolve, reject) => {
-
-        Axios({
-            method: 'post',
-           
-             url: baseurl,
-            data: querystring
-          }).then((res) => {
-                console.log(`Status: ${res.status}`);
-                console.log('Body: ', res.data);
-                resolve(res)
-            }).catch((err) => {
-                console.error(err);
-                reject(err)
-            });
-
-      });
+        return []
+     
+  
+      }
+  
 
 
-    }
+
+  static async resolveGraphQuery(graphURL, queryString){
+
+    return new Promise(   (resolve, reject) => {
+
+      axios.post(graphURL,{query: queryString})
+      .then((res) => {
+         
+           console.log(res.data)
+           let results = res.data
+          
+     
+            resolve(results)
+
+       }) .catch((error) => {
+           console.error(error)
+           reject(error)
+       })
+
+   }); 
+
+  }
 
 
 }
