@@ -233,19 +233,26 @@ export default {
 
       //this is required because vue cant detect changes otherwise 
      this.web3Plug.getPlugEventEmitter().on('stateChanged', function(connectionState) {
+      
+      let contractData = this.web3Plug.getContractDataForNetworkID( this.web3Plug.getActiveNetId() )
+        
+          this.depositAsset.name = "0xBTC"
+         this.depositAsset.address = contractData['0xbitcoin'].address
+   
+         console.log('this.depositAsset', this.depositAsset)
         this.refreshBalances()
         
       }.bind(this));
 
-     let contractData = this.web3Plug.getContractDataForNetworkID( this.web3Plug.getActiveNetId() )
+   /*  let contractData = this.web3Plug.getContractDataForNetworkID( this.web3Plug.getActiveNetId() )
 
 
     this.depositAsset.name = "0xBTC"
     this.depositAsset.address = contractData['0xbitcoin'].address
    
 
-    console.log('this.depositAsset', this.depositAsset)
-    
+    console.log('this.depositAsset', this.depositAsset)*/
+     this.web3Plug.reconnectWeb()
    },
 
  

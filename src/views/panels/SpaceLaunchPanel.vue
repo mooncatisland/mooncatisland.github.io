@@ -150,10 +150,7 @@ export default {
   },
   created: async function(){
 
-       this.web3Plug.getPlugEventEmitter().on('stateChanged', async function(connectionState) {
-        
-        
-      }.bind(this));
+       
 
 
       this.scanningDetails.cpucores =  os.cpus().length;
@@ -163,6 +160,12 @@ export default {
 
   },
   mounted: async function(){
+
+    this.web3Plug.getPlugEventEmitter().on('stateChanged', async function(connectionState) {
+        
+          await this.refreshBalances()
+      }.bind(this));
+
 
     await this.refreshBalances()
     setInterval(this.refreshBalances, 10*1000);

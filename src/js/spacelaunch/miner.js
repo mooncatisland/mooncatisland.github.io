@@ -25,6 +25,8 @@ export default class Miner{
 			}
 
 			workerCount = workerCount || 1;
+
+			console.log('mining with '+workerCount+' workers.')
 			terminateWorkers();
 			workers = [];
 			for (var i = 0; i < workerCount; i++){

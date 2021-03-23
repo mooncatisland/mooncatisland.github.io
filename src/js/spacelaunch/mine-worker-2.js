@@ -1,7 +1,7 @@
 /*var window = {}
 importScripts('sha3.min.js');
 var sha3 = window;*/
-
+import sha3 from 'sha3.min.js'
 
 export default class MineWorker{
     
@@ -34,6 +34,8 @@ export default class MineWorker{
            if(searchSeed.slice(0,2) == "0x"){
                searchSeed = searchSeed.slice(2);
            }
+
+           console.log("searchseed",searchSeed , '0xaab8f226b2d172c7937a244dd0a3e9c42ad9034baba803b000a85148667fc281' )
    
    
            var seed;
