@@ -3,7 +3,7 @@ import VueTailwind from 'vue-tailwind'
 import App from './App.vue'
 import router from './router'
 
-
+import './css/tailwind.css'
 
 import './css/saturn.css';
 import './css/main.css'

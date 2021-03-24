@@ -81,8 +81,10 @@
                <CatToyImage
              
               v-bind:renderSize="64"
-              v-bind:iconId="9"
+              v-bind:iconId="scanningDetails.output.toyDetails.iconId"
               /> </div>
+
+               <div>  {{scanningDetails.output.toyDetails.fullName}} </div>
 
 
               <div> <div @click="claimMoontoy()" class="bg-purple-400 rounded p-2 m-2 text-white cursor-pointer"> Claim MoonToy </div>  </div>
@@ -133,6 +135,8 @@ import CatIndex from './subcomponents/CatIndex.vue'
 import CatProfile from './subcomponents/CatProfile.vue'
 
 import CatToyImage from './subcomponents/CatToyImage.vue'
+
+import MoonToys from '../../js/moon-toys.js' 
 
 const CryptoAssets = require('../../config/cryptoassets.json')
 
@@ -384,11 +388,20 @@ export default {
           })
         })
         
-          this.scanningDetails.scanActive = false
-          this.scanningDetails.output = output 
+          
 
            console.log('results of mining', output )
- 
+
+
+          let toyId = output.id 
+
+            
+
+          output.toyDetails = MoonToys.getToyDetails( toyId )
+           
+
+          this.scanningDetails.scanActive = false
+          this.scanningDetails.output = output 
 
        
         //when this finds a good number, set scanningComplete to finished , allow user to either scan again or submit the claim to end the program 

@@ -2,7 +2,13 @@
   "name": "mooncat-island",
   "description": "Fun website for Mooncats",
   "version": "0.1.0",
-  "private": true,
+  "type": "module",
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {},
+      "autoprefixer": {}
+    }
+  },
   "scripts": {
     "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -17,6 +23,7 @@
     "bignumber.js": "^9.0.1",
     "core-js": "^2.6.5",
     "cors": "^2.8.5",
+    "crypto-js": "^4.0.0",
     "gh-pages": "^3.1.0",
     "tailwindcss": "^1.0.0-beta.4",
     "vue": "^2.6.6",
