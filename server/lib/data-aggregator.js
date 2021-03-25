@@ -1,5 +1,8 @@
 
-  
+
+
+import TinyFox from 'tinyfox'
+
 export default class DataAggregator{
 
 
@@ -7,32 +10,22 @@ export default class DataAggregator{
         this.mongoInterface = mongoInterface
         this.web3 = web3 
 
-
-        setInterval(this.update,20* 1000)
-
-    }
-
-    update(){
-        console.log('update')
+        this.tinyFox = new TinyFox({suffix: 'development'})
 
 
+        let tinyfoxConfig = {
+            contractType: 'ERC20',
+            contractAddress: '0xab89a7742cb10e7bce98540fd05c7d731839cf9f' ,
+            startBlock: 1316824 
+        } 
 
-    }
-
-
-    //need to build a poor mans version of TheGraph using this 
-
-    findEvents(){
-
-        MyContract.events.MyEvent({}, { fromBlock: 0, toBlock: 'latest' }).on(
-            'data', function(event) {
-            console.log(event);
-          }).on('error', console.error);
-        
+        this.tinyFox.startIndexing( this.web3, tinyfoxConfig )  
+         
 
     }
+ 
 
-
+ 
 
 
 

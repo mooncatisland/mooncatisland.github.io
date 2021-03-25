@@ -4,7 +4,7 @@ import Web3 from 'web3'
 
 import BigNumber from 'bignumber.js'
 
-import FileHelper from './file-helper.js'
+import FileHelper from './file-helper-two.js'
 
 const contractData = FileHelper.readJSONFile('./src/config/contractdata.json')
 const tokenContractABI = FileHelper.readJSONFile('./src/contracts/ERC20ABI.json')

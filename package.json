@@ -32,7 +32,8 @@
     "vue": "^2.6.6",
     "vue-router": "^3.0.1",
     "vue-tailwind": "^1.2.6",
-    "web3": "^1.2.11"
+    "web3": "^1.2.11",
+    "tinyfox": "file:../tinyfox"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.11.5",

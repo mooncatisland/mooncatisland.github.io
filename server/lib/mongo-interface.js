@@ -1,9 +1,6 @@
 import { default as mongodb } from 'mongodb';
 let MongoClient = mongodb.MongoClient;
-
- //var mongo = require('mongodb');
-// var mongoClient = require('mongodb').MongoClient;
-//var defaulturl = "mongodb://localhost:27017";
+ 
 
 export default class MongoInterface  {
 
