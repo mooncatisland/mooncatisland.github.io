@@ -1,0 +1,20 @@
+{
+    "development":{
+        "useHTTPS":false,
+        "chainId":80001,
+        "web3provider":"https://rpc-mumbai.maticvigil.com/v1/" 
+    },
+    "staging":{
+        "useHTTPS":true,
+        "chainId":80001,
+        "web3provider":"https://rpc-mumbai.maticvigil.com/v1/" 
+    },
+    "production":{
+        "useHTTPS":true,
+        "chainId":137,
+        "web3provider":"https://rpc-mainnet.maticvigil.com/v1/"
+    }
+    
+    
+   
+}

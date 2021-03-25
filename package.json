@@ -13,7 +13,9 @@
     "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "deploy": "node deploy.js",
-    "server": "node express.js",
+    "server": "NODE_ENV=production node server/server.js",
+    "server-staging": "NODE_ENV=staging node server/server.js",
+    "server-dev": "NODE_ENV=development node server/server.js",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit"
   },
@@ -25,6 +27,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "gh-pages": "^3.1.0",
+    "mongodb": "^3.6.5",
     "tailwindcss": "^1.0.0-beta.4",
     "vue": "^2.6.6",
     "vue-router": "^3.0.1",
